@@ -1,0 +1,5 @@
+C:\geetemp\programming\c#\captains_log\WebApplication3\WebApplication3\bin\WebApplication3.dll
+C:\geetemp\programming\c#\captains_log\WebApplication3\WebApplication3\bin\WebApplication3.pdb
+C:\geetemp\programming\c#\captains_log\WebApplication3\WebApplication3\obj\Debug\ResolveAssemblyReference.cache
+C:\geetemp\programming\c#\captains_log\WebApplication3\WebApplication3\obj\Debug\WebApplication3.dll
+C:\geetemp\programming\c#\captains_log\WebApplication3\WebApplication3\obj\Debug\WebApplication3.pdb

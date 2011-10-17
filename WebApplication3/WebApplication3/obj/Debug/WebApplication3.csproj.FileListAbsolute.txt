@@ -1,0 +1,10 @@
+\\rtdom.com\file\ec&c\home\383203\data\visual studio 2010\Projects\WebApplication3\WebApplication3\bin\WebApplication3.dll
+\\rtdom.com\file\ec&c\home\383203\data\visual studio 2010\Projects\WebApplication3\WebApplication3\bin\WebApplication3.pdb
+\\rtdom.com\file\ec&c\home\383203\data\visual studio 2010\Projects\WebApplication3\WebApplication3\obj\Debug\ResolveAssemblyReference.cache
+\\rtdom.com\file\ec&c\home\383203\data\visual studio 2010\Projects\WebApplication3\WebApplication3\obj\Debug\WebApplication3.dll
+\\rtdom.com\file\ec&c\home\383203\data\visual studio 2010\Projects\WebApplication3\WebApplication3\obj\Debug\WebApplication3.pdb
+C:\geetemp\programming\c#\captains_log\WebApplication3\WebApplication3\bin\WebApplication3.dll
+C:\geetemp\programming\c#\captains_log\WebApplication3\WebApplication3\bin\WebApplication3.pdb
+C:\geetemp\programming\c#\captains_log\WebApplication3\WebApplication3\obj\Debug\ResolveAssemblyReference.cache
+C:\geetemp\programming\c#\captains_log\WebApplication3\WebApplication3\obj\Debug\WebApplication3.dll
+C:\geetemp\programming\c#\captains_log\WebApplication3\WebApplication3\obj\Debug\WebApplication3.pdb

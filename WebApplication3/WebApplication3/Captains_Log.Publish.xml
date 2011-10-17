@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<publishData>
+  <publishProfile publishUrl="\\10.225.124.52\e$\HealthChecks" deleteExistingFiles="False" ftpAnonymousLogin="False" ftpPassiveMode="True" msdeploySite="" msdeploySiteID="" msdeployRemoteSitePhysicalPath="" msdeployAllowUntrustedCertificate="False" msdeploySkipExtraFilesOnServer="True" msdeployMarkAsApp="False" profileName=".52" publishMethod="FileSystem" replaceMatchingFiles="True" userName="" savePWD="False" userPWD="" SelectedForPublish="True">
+    <file relUrl="Scripts/jquery-1.4.1.min.js" publishTime="10/12/2011 12:46:10" />
+    <file relUrl="StyleSheet1.css" publishTime="10/14/2011 16:03:00" />
+    <file relUrl="bin/WebApplication3.pdb" publishTime="10/14/2011 15:11:24" />
+    <file relUrl="Web.config" publishTime="10/14/2011 15:13:57" />
+    <file relUrl="Default.aspx" publishTime="10/17/2011 16:01:57" />
+    <file relUrl="bin/WebApplication3.dll" publishTime="10/14/2011 15:11:24" />
+    <file relUrl="Scripts/jquery-1.4.1.js" publishTime="10/12/2011 12:46:10" />
+    <file relUrl="Scripts/jquery-1.4.1-vsdoc.js" publishTime="10/12/2011 12:46:10" />
+  </publishProfile>
+</publishData>
