@@ -6,6 +6,56 @@
 <head runat="server">
     <title>Captain's Log - VMware events since 5PM on the last working day.</title>
     <link href="StyleSheet1.css" rel="stylesheet" type="text/css" />
+    <script src="Scripts/jquery-1.4.1.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            alert("compiles");
+
+            // for each table on the page
+            $('table').each(function () {
+                //iterate through each row
+                $(this).find('tr').each(function () {
+
+                    var currentID = $(this).find('td.invID').text();
+                    var nextID = $(this).next().find('td.invID').text();
+
+                    alert(currentID);
+                    if (currentID != " ") {
+                        // if the current invID cell and the next one are different, insert a row for the investigation text
+                        if (currentID != nextID) {
+                            $(this).find('td.invID').parent().after('<tr><td colspan="9" >test</td></tr>');
+
+                        }
+                    }
+
+                })
+
+            })
+
+
+
+
+
+
+            //alert($(this).text() + ' - ' + index);
+
+            //alert($('td.invID')[index + 1]);
+
+            // alert($(this).nextAll('td.invID:first').text());
+
+            // if ($(this).next().text() == $(this).text()) {
+            //    alert($(this).next().text());
+            //}
+
+
+
+        });
+    
+    </script>
+
     <style type="text/css">
         .style1
         {
@@ -24,11 +74,11 @@
     Infra</h3>
     <asp:SqlDataSource ID="SqlDataSource1" runat="server" 
         ConnectionString="<%$ ConnectionStrings:captains_logConnectionString6 %>" 
-        SelectCommand="SELECT [Time], [Event],[Occurrences] as '#',  [Host], [Cluster] FROM [EntryView] 
+        SelectCommand="SELECT [Time], [Event],[Occurrences] as '#',  [Host], [Cluster],[ServerID],[EntryID],[investigationID] FROM [EntryView] 
 WHERE ([Environment] = @Environment)
      AND (Time BETWEEN @StartDate AND @EndDate)
 
-ORDER BY Time">
+ORDER BY investigationID,Time">
         <SelectParameters>
             <asp:Parameter DefaultValue="infrp0101" Name="Environment" />
             <asp:QueryStringParameter DbType="DateTime" DefaultValue="1/1/2011" 
@@ -37,12 +87,20 @@ ORDER BY Time">
                 Name="EndDate" QueryStringField="enddate" />
         </SelectParameters>
     </asp:SqlDataSource>
+    <br />
+    <asp:Button ID="Button1" runat="server" onclick="Button1_Click" 
+        Text="Annotate selected events" Width="194px" />
     <asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="False" 
-        BackColor="White" BorderColor="#DEDFDE" BorderStyle="None" BorderWidth="1px" 
-        CellPadding="4" DataSourceID="SqlDataSource1" EnableModelValidation="True" 
-        ForeColor="Black" GridLines="Vertical" style="margin-right: 0px">
-        <AlternatingRowStyle BackColor="White" />
+        DataSourceID="SqlDataSource1" EnableModelValidation="True" 
+        style="margin-right: 0px" DataKeyNames="EntryID,investigationID" 
+        onprerender="GridView1_PreRender1">
         <Columns>
+             <asp:TemplateField>
+                <ItemTemplate>
+                    <asp:CheckBox runat="server" ID="chkSelected" />
+                </ItemTemplate>
+            </asp:TemplateField>
+
             <asp:BoundField DataField="Time" HeaderText="Time" SortExpression="Time" />
             <asp:BoundField DataField="Event" HeaderText="Event" SortExpression="Event" />
             <asp:BoundField DataField="#" HeaderText="#" 
@@ -50,12 +108,17 @@ ORDER BY Time">
             <asp:BoundField DataField="Host" HeaderText="Host" SortExpression="Host" />
             <asp:BoundField DataField="Cluster" HeaderText="Cluster" 
                 SortExpression="Cluster" />
+            <asp:BoundField DataField="ServerID" HeaderText="ServerID" 
+                SortExpression="ServerID" />
+            <asp:BoundField DataField="EntryID" HeaderText="EntryID" 
+                SortExpression="EntryID" />
+            <asp:BoundField DataField="investigationID" HeaderText="investigationID" 
+                SortExpression="investigationID" ItemStyle-CssClass="invID">
+             </asp:BoundField>
         </Columns>
-        <FooterStyle BackColor="#CCCC99" />
-        <HeaderStyle BackColor="#6B696B" Font-Bold="True" ForeColor="White" />
-        <PagerStyle BackColor="#F7F7DE" ForeColor="Black" HorizontalAlign="Right" />
-        <RowStyle BackColor="#F7F7DE" />
-        <SelectedRowStyle BackColor="#CE5D5A" Font-Bold="True" ForeColor="White" />
+        <EmptyDataTemplate>
+            None
+        </EmptyDataTemplate>
 
 
 
