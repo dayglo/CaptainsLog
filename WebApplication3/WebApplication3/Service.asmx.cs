@@ -29,6 +29,14 @@ namespace CaptainsLog
         public long InvestigationID;
 
     }
+
+    public class LogRequest
+    {
+        public string startDate;
+        public string endDate;
+        public string environment;
+    }
+
 /// <summary>
     /// Summary description for JobPost1ws
     /// </summary>
@@ -41,15 +49,15 @@ namespace CaptainsLog
        {
 
         [WebMethod]
-        public List<LogEntry> GetEntries()
+        public List<LogEntry> GetEntries(LogRequest LogRequest)
+        //string environment, string cluster, string server, string starttime, string endtime
         {
             using (SqlConnection myConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["Live"].ConnectionString))
             {
-
-                const string SQL = "SELECT [Time], [Event],[Occurrences],  [Host], [Cluster],[ServerID],[EntryID],[investigationID] FROM [EntryView] "; //+
-                //"WHERE ([Environment] = @Environment) " +
-                //"AND (Time BETWEEN @StartDate AND @EndDate) " +
-                // "ORDER BY investigationID,Time ";
+                string SQL = "SELECT [Time], [Event],[Occurrences],  [Host], [Cluster],[ServerID],[EntryID],[investigationID] FROM [EntryView] " +
+                "WHERE ([Environment] = '"+ LogRequest.environment + "') " +
+                "AND (Time BETWEEN '" + LogRequest.startDate + "' AND '" + LogRequest.endDate + "') " +
+                "ORDER BY investigationID,Time ";
 
                 SqlCommand myCommand = new SqlCommand(SQL, myConnection);
                 myConnection.Open();

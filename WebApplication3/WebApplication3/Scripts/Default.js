@@ -23,10 +23,19 @@ $(function () {
 });
 
 function getPosts() {
+
+    var LogRequest = {}
+
+    LogRequest.startDate = "1/14/2012 10:00";
+    LogRequest.endDate = "1/23/2012 11:00";
+    LogRequest.environment = "prodpb2"
+
+    var DTO = {'LogRequest' : LogRequest};
+
     $.ajax({
         type: "POST",
         url: "Service.asmx/GetEntries",
-        data: "{}",
+        data: JSON.stringify(DTO),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
