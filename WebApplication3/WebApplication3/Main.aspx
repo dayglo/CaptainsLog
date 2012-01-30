@@ -5,12 +5,22 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title></title>
-  <!-- <script type="text/javascript" src="Scripts/jquery-1.6.2.min.js"></script>-->
-    <script src="Scripts/jquery-1.4.1.min.js" type="text/javascript"></script>
-   <script src="Scripts/json2.js" type="text/javascript"></script>
 
-    <script type="text/javascript" src="Scripts/Default.js"></script>
+
+    <link href="css/smoothness/jquery-ui-1.8.17.custom.css" rel="stylesheet" type="text/css" />
+    <link href="css/ui.jqgrid.css" rel="stylesheet" type="text/css" />
     
+    <script src="js/jquery-1.7.1.min.js" type="text/javascript"></script>
+    <script src="js/json2.js" type="text/javascript"></script>
+    <script src="js/jquery-ui-1.8.17.custom.min.js" type="text/javascript"></script>
+
+    <script src="js/i18n/grid.locale-en.js" type="text/javascript"></script>
+    <script src="js/jquery.jqGrid.js" type="text/javascript"></script>
+
+
+
+
+    <script type="text/javascript" src="js/Default.js"> </script>
 </head>
 <body>
      <form id="form2" runat="server">

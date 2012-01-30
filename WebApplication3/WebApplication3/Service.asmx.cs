@@ -21,12 +21,14 @@ namespace CaptainsLog
     public class LogEntry
     {
         public long EntryID;
-        public DateTime Time;
+        public string Time;
         public string Event;
         public long Occurrences;
         public string Host;
+        public string Cluster;
         public int ServerID;
         public long InvestigationID;
+        public string Environment;
 
     }
 
@@ -54,7 +56,7 @@ namespace CaptainsLog
         {
             using (SqlConnection myConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["Live"].ConnectionString))
             {
-                string SQL = "SELECT [Time], [Event],[Occurrences],  [Host], [Cluster],[ServerID],[EntryID],[investigationID] FROM [EntryView] " +
+                string SQL = "SELECT [Time], [Event],[Occurrences],  [Host], [Cluster],[ServerID],[EntryID],[investigationID],[Environment] FROM [EntryView] " +
                 "WHERE ([Environment] = '"+ LogRequest.environment + "') " +
                 "AND (Time BETWEEN '" + LogRequest.startDate + "' AND '" + LogRequest.endDate + "') " +
                 "ORDER BY investigationID,Time ";
@@ -76,15 +78,19 @@ namespace CaptainsLog
                     LogEntry le = new LogEntry();
                     le.EntryID = (long)row["EntryID"];
 
+                    if (!(row["InvestigationID"] == System.DBNull.Value))
+                    {
+                        le.InvestigationID = (long)row["InvestigationID"];
+                    }
 
-                    //    le.InvestigationID = (long)row["InvestigationID"];
-
-                    
+                    le.Time = row["Time"].ToString();
                     le.Occurrences = (long)row["Occurrences"];
                     le.ServerID = (int)row["ServerID"];
 
                     le.Host = row["Host"].ToString();
                     le.Event = row["Event"].ToString();
+                    le.Environment = row["Environment"].ToString();
+                    le.Cluster = row["Cluster"].ToString();
 
                     //jp.Time = (DateTime)row["Time"].ToString();
 

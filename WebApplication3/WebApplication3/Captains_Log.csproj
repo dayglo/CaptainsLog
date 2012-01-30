@@ -53,12 +53,74 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="css\ellipsis-xbl.xml" />
+    <Content Include="css\ui.jqgrid.css" />
+    <Content Include="Global.asax" />
+    <Content Include="js\grid.base.js" />
+    <Content Include="js\grid.celledit.js" />
+    <Content Include="js\grid.common.js" />
+    <Content Include="js\grid.custom.js" />
+    <Content Include="js\grid.filter.js" />
+    <Content Include="js\grid.formedit.js" />
+    <Content Include="js\grid.grouping.js" />
+    <Content Include="js\grid.import.js" />
+    <Content Include="js\grid.inlinedit.js" />
+    <Content Include="js\grid.jqueryui.js" />
+    <Content Include="js\grid.subgrid.js" />
+    <Content Include="js\grid.tbltogrid.js" />
+    <Content Include="js\grid.treegrid.js" />
+    <Content Include="js\i18n\grid.locale-ar.js" />
+    <Content Include="js\i18n\grid.locale-bg.js" />
+    <Content Include="js\i18n\grid.locale-bg1251.js" />
+    <Content Include="js\i18n\grid.locale-cat.js" />
+    <Content Include="js\i18n\grid.locale-cn.js" />
+    <Content Include="js\i18n\grid.locale-cs.js" />
+    <Content Include="js\i18n\grid.locale-da.js" />
+    <Content Include="js\i18n\grid.locale-de.js" />
+    <Content Include="js\i18n\grid.locale-el.js" />
+    <Content Include="js\i18n\grid.locale-en.js" />
+    <Content Include="js\i18n\grid.locale-es.js" />
+    <Content Include="js\i18n\grid.locale-fa.js" />
+    <Content Include="js\i18n\grid.locale-fi.js" />
+    <Content Include="js\i18n\grid.locale-fr.js" />
+    <Content Include="js\i18n\grid.locale-gl.js" />
+    <Content Include="js\i18n\grid.locale-he.js" />
+    <Content Include="js\i18n\grid.locale-hr.js" />
+    <Content Include="js\i18n\grid.locale-hr1250.js" />
+    <Content Include="js\i18n\grid.locale-hu.js" />
+    <Content Include="js\i18n\grid.locale-is.js" />
+    <Content Include="js\i18n\grid.locale-it.js" />
+    <Content Include="js\i18n\grid.locale-ja.js" />
+    <Content Include="js\i18n\grid.locale-lt.js" />
+    <Content Include="js\i18n\grid.locale-mne.js" />
+    <Content Include="js\i18n\grid.locale-nl.js" />
+    <Content Include="js\i18n\grid.locale-no.js" />
+    <Content Include="js\i18n\grid.locale-pl.js" />
+    <Content Include="js\i18n\grid.locale-pt-br.js" />
+    <Content Include="js\i18n\grid.locale-pt.js" />
+    <Content Include="js\i18n\grid.locale-ro.js" />
+    <Content Include="js\i18n\grid.locale-ru.js" />
+    <Content Include="js\i18n\grid.locale-sk.js" />
+    <Content Include="js\i18n\grid.locale-sr-latin.js" />
+    <Content Include="js\i18n\grid.locale-sr.js" />
+    <Content Include="js\i18n\grid.locale-sv.js" />
+    <Content Include="js\i18n\grid.locale-th.js" />
+    <Content Include="js\i18n\grid.locale-tr.js" />
+    <Content Include="js\i18n\grid.locale-ua.js" />
+    <Content Include="js\jqDnR.js" />
+    <Content Include="js\jqModal.js" />
+    <Content Include="js\jquery-1.7.1.min.js" />
+    <Content Include="js\jquery-ui-1.8.17.custom.min.js" />
+    <Content Include="js\jquery.fmatter.js" />
+    <Content Include="js\jquery.jqGrid.js" />
+    <Content Include="js\json2.js" />
+    <Content Include="js\JsonXml.js" />
     <Content Include="Service.asmx" />
     <Content Include="HTMLPage1.htm" />
-    <Content Include="Scripts\jquery-1.4.1-vsdoc.js" />
-    <Content Include="Scripts\jquery-1.4.1.js" />
-    <Content Include="Scripts\jquery-1.4.1.min.js" />
-    <Content Include="Scripts\Default.js" />
+    <Content Include="js\jquery-1.4.1-vsdoc.js" />
+    <Content Include="js\jquery-1.4.1.js" />
+    <Content Include="js\jquery-1.4.1.min.js" />
+    <Content Include="js\Default.js" />
     <Content Include="StyleSheet1.css" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -71,6 +133,9 @@
     <Content Include="WebService1.asmx" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
     <Compile Include="Service.asmx.cs">
       <DependentUpon>Service.asmx</DependentUpon>
       <SubType>Component</SubType>
