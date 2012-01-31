@@ -22,8 +22,30 @@ $(document).ready(function () {
     //If there is no startdate or enddate, set them to be the period since the last working day
     startDate = getUrlVars()["startDate"];
     endDate = getUrlVars()["endDate"];
-    if (startDate == undefined) { startDate = "1/14/2012 10:00" }
-    if (endDate == undefined) { endDate = new Date().toString() }
+    if (startDate == undefined) {
+
+        var targetDate = new Date();
+        var dayOfWeek = targetDate.getDay();
+
+        switch (true) {
+            //monday           
+            case (dayOfWeek == 1):
+                targetDate.setDate(targetDate.getDate() - 3);
+                break;
+            //sunday           
+            case (dayOfWeek == 0):
+                targetDate.setDate(targetDate.getDate() - 2);
+                break;
+            //rest of week           
+            default:
+                targetDate.setDate(targetDate.getDate() - 1);
+                break;
+        }
+        targetDate.setHours(17, 00, 00, 00);
+        startDate = targetDate.toString().substr(4, 20);
+    }
+    if (endDate == undefined) { endDate = new Date().toString().substr(4, 20) }
+
 
     //click handler for table rows
     $('tr').click(function () {
@@ -72,7 +94,6 @@ $(document).ready(function () {
             }
         ]
     }
-
 
 
 
