@@ -28,15 +28,15 @@ $(document).ready(function () {
         var dayOfWeek = targetDate.getDay();
 
         switch (true) {
-            //monday           
+            //monday            
             case (dayOfWeek == 1):
                 targetDate.setDate(targetDate.getDate() - 3);
                 break;
-            //sunday           
+            //sunday            
             case (dayOfWeek == 0):
                 targetDate.setDate(targetDate.getDate() - 2);
                 break;
-            //rest of week           
+            //rest of week            
             default:
                 targetDate.setDate(targetDate.getDate() - 1);
                 break;
@@ -48,13 +48,17 @@ $(document).ready(function () {
 
 
     //click handler for table rows
-    $('tr').click(function () {
-        alert("ed");
-        if ($(this).hasClass('row_selected'))
-            $(this).removeClass('row_selected');
-        else
-            $(this).addClass('row_selected');
-    });
+    //$('tr').click(function () {
+    //    alert("ed");
+    //    if ($(this).hasClass('row_selected'))
+    //        $(this).removeClass('row_selected');
+    //    else
+    //        $(this).addClass('row_selected');
+    //});
+
+    //make tr selectable
+    
+
 
     var ReportsToRequest = {
         "ReportingAreas": [
@@ -96,6 +100,19 @@ $(document).ready(function () {
     }
 
 
+     var ReportsToRequest = {
+        "ReportingAreas": [
+            {
+                "Name": "Heritage HBOS",
+                "Environments": [
+                    { "name": "Infra", "VCServer": "infrp0101" },
+                    { "name": "Preprod", "VCServer": "infrp0100" },
+                    { "name": "Prod", "VCServer": "infrl0100" }
+                 ]
+                
+             } 
+          ]
+        }
 
 
     $('#Button1').click(function () {
@@ -121,7 +138,7 @@ $(document).ready(function () {
                         //write the name and connect to the webservice to get all the data
                         $('#output').append('<h3>' + env2.name + ' [VC:' + env2.VCServer + ']</h3>');
 
-                        $('#output').append('<div id="data_' + env2.VCServer + '"></div><div id="comments_' + env2.VCServer + '"></div>');
+                        $('#output').append('<div id="data_' + env2.VCServer + '"></div><div id="comments_' + env2.VCServer + '"> &nbsp </div>');
                         GetPostsIntoTable(env2.VCServer, "data_" + env2.VCServer, startDate, endDate);
                     }
                 );
@@ -166,17 +183,18 @@ function GetPostsIntoTable(env,location,start,end) {
             if (les.length != 0) {
 
                 //Create the table header
-                $('#' + location).append('<table id="table_' + env + '" class="display"></table');
+                $('#' + location).append('<table id="table_' + env + '" class="display table-striped table-bordered table-condensed"></table');
 
                 //create the table heading row
                 $('#table_' + env).append('<thead><tr><!--<th colspan="6" id="' + env + '">' + env + '</th>--></tr><tr>' +
+                '   <td>InvestigationID</td>' +
                 '   <td>Time</td>' +
                 '   <td>Event</td>' +
                 '   <td>#</td>' +
                 '   <td>Host</td>' +
                 '   <td>Cluster</td>' +
                 //'   <td> Id</td>' +
-                '   <td>InvestigationID</td>' +
+                
 
                 '</tr></thead><tbody>');
 
@@ -184,12 +202,13 @@ function GetPostsIntoTable(env,location,start,end) {
 
                 $.each(les, function (index, le) {
                     $('#table_' + env).append('<tr>' +
+                    '   <td>' + le.InvestigationID + '</td>' +
                     '   <td>' + le.Time + '</td>' +
                     '   <td>' + le.Event + '</td>' +
                     '   <td>' + le.Occurrences + '</td>' +
                     '   <td>' + le.Host + '</td>' +
-                    '   <td>' + le.Cluster + '</td>' +
-                    '   <td>' + le.InvestigationID + '</td>'
+                    '   <td>' + le.Cluster + '</td>' 
+                    
                     );
                 });
 
@@ -198,17 +217,66 @@ function GetPostsIntoTable(env,location,start,end) {
 
                 $('#table_' + env).dataTable({
                     "bPaginate": false,
-                    "bJQueryUI": true
+                    "bJQueryUI": true,
+                    "bFilter": false, 
+                    "bInfo": false,
+
+                    "fnDrawCallback": function (oSettings) {
+                        if (oSettings.aiDisplay.length == 0) {
+                            return;
+                        }
+
+                        var nTrs = $('#table_' + env + ' tbody tr');
+                        var iColspan = nTrs[0].getElementsByTagName('td').length;
+                        var sLastGroup = "";
+                        for (var i = 0; i < nTrs.length; i++) {
+                            var iDisplayIndex = oSettings._iDisplayStart + i;
+                            var sGroup = oSettings.aoData[oSettings.aiDisplay[iDisplayIndex]]._aData[0];
+                            if (sGroup != sLastGroup) {
+                                var nGroup = document.createElement('tr');
+                                var nCell = document.createElement('td');
+                                nCell.colSpan = iColspan;
+                                nCell.className = "group";
+                                nCell.innerHTML = sGroup;
+                                nGroup.appendChild(nCell);
+                                nTrs[i].parentNode.insertBefore(nGroup, nTrs[i]);
+                                sLastGroup = sGroup;
+                            }
+                        }
+                    },
+                    "aoColumnDefs": [
+                        { "bVisible": false, "aTargets": [0] }
+                    ],
+                    "aaSortingFixed": [[0, 'asc']],
+                    "aaSorting": [[1, 'asc']],
+                    "sDom": 'lfr<"giveHeight"t>ip'
+
+
                 });
 
-        } else {
-            $('#' + location).append("<p>No Data</p>");
-        }
 
-    },
-    failure: function (msg) {
-        $('#' + location).text(msg);
-    }
-});
+
+                $("tbody").selectable({
+                    filter: 'td',
+                    selected: function (event, ui) {
+                        $(ui.selected).siblings().addClass('ui-selected');
+                    },
+                    unselected:function(event,ui) {
+                        $(ui.unselected).siblings().removeClass('ui-selected');
+                    }
+                });
+
+                
+
+
+            } else {
+                $('#' + location).append("<p>No Data</p>");
+            }
+
+        },
+        failure: function (msg) {
+            $('#' + location).text(msg);
+        }
+    });
 }
 
