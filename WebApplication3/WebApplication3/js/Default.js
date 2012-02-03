@@ -10,6 +10,22 @@
 }
 
 
+function addSpinner(id) {
+
+    var opts = {
+        lines: 8, // The number of lines to draw
+        length: 0, // The length of each line
+        width: 3, // The line thickness
+        radius: 3, // The radius of the inner circle
+        color: '#000', // #rgb or #rrggbb
+        speed: 1.7, // Rounds per second
+        trail: 60, // Afterglow percentage
+        shadow: false, // Whether to render a shadow
+        hwaccel: true // Whether to use hardware acceleration
+    };
+    var target = document.getElementById(id);
+    var spinner = new Spinner(opts).spin(target);
+}
 
 
 
@@ -28,15 +44,15 @@ $(document).ready(function () {
         var dayOfWeek = targetDate.getDay();
 
         switch (true) {
-            //monday            
+            //monday                  
             case (dayOfWeek == 1):
                 targetDate.setDate(targetDate.getDate() - 3);
                 break;
-            //sunday            
+            //sunday                  
             case (dayOfWeek == 0):
                 targetDate.setDate(targetDate.getDate() - 2);
                 break;
-            //rest of week            
+            //rest of week                  
             default:
                 targetDate.setDate(targetDate.getDate() - 1);
                 break;
@@ -47,17 +63,42 @@ $(document).ready(function () {
     if (endDate == undefined) { endDate = new Date().toString().substr(4, 20) }
 
 
-    //click handler for table rows
-    //$('tr').click(function () {
-    //    alert("ed");
-    //    if ($(this).hasClass('row_selected'))
-    //        $(this).removeClass('row_selected');
-    //    else
-    //        $(this).addClass('row_selected');
-    //});
+    $("#dialog-form").dialog({
+        autoOpen: false,
+        height: 300,
+        width: 350,
+        modal: true,
+        buttons: {
+            "Save": function () {
+                var bValid = true;
+                allFields.removeClass("ui-state-error");
+
+                bValid = bValid && checkLength(text, "Text", 3, 4096);
+                //bValid = bValid && checkLength(email, "email", 6, 80);
+                //bValid = bValid && checkLength(password, "password", 5, 16);
+
+                //bValid = bValid && checkRegexp(name, /^[a-z]([0-9a-z_])+$/i, "Username may consist of a-z, 0-9, underscores, begin with a letter.");
+                // From jquery.validate.js (by joern), contributed by Scott Gonzalez: http://projects.scottsplayground.com/email_address_validation/
+                //bValid = bValid && checkRegexp(email, /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i, "eg. ui@jquery.com");
+                //bValid = bValid && checkRegexp(password, /^([0-9a-zA-Z])+$/, "Password field only allow : a-z 0-9");
+
+                if (bValid) {
+                    
+                    //add to db.
+                    $(this).dialog("close");
+                }
+            },
+            Cancel: function () {
+                $(this).dialog("close");
+            }
+        },
+        close: function () {
+            allFields.val("").removeClass("ui-state-error");
+        }
+    });
 
     //make tr selectable
-    
+
 
 
     var ReportsToRequest = {
@@ -100,7 +141,7 @@ $(document).ready(function () {
     }
 
 
-     var ReportsToRequest = {
+    var ReportsToRequest = {
         "ReportingAreas": [
             {
                 "Name": "Heritage HBOS",
@@ -109,10 +150,10 @@ $(document).ready(function () {
                     { "name": "Preprod", "VCServer": "infrp0100" },
                     { "name": "Prod", "VCServer": "infrl0100" }
                  ]
-                
-             } 
+
+            }
           ]
-        }
+    }
 
 
     $('#Button1').click(function () {
@@ -137,6 +178,14 @@ $(document).ready(function () {
                     function (i2, env2) {
                         //write the name and connect to the webservice to get all the data
                         $('#output').append('<h3>' + env2.name + ' [VC:' + env2.VCServer + ']</h3>');
+                        $('#output').append(' <button type="button" id="Btn_anno_' + env2.VCServer + '">Annotate selected events</button>');
+                        $("#Btn_anno_" + env2.VCServer).button();
+                        $("#Btn_anno_" + env2.VCServer).click(function () {
+				            $( "#dialog-form" ).dialog( "open" );
+			            });
+                        $("#Btn_anno_" + env2.VCServer).button("disable");
+
+
 
                         $('#output').append('<div id="data_' + env2.VCServer + '"></div><div id="comments_' + env2.VCServer + '"> &nbsp </div>');
                         GetPostsIntoTable(env2.VCServer, "data_" + env2.VCServer, startDate, endDate);
@@ -194,21 +243,21 @@ function GetPostsIntoTable(env,location,start,end) {
                 '   <td>Host</td>' +
                 '   <td>Cluster</td>' +
                 //'   <td> Id</td>' +
-                
+
 
                 '</tr></thead><tbody>');
 
                 //render the data
 
                 $.each(les, function (index, le) {
-                    $('#table_' + env).append('<tr>' +
+                    $('#table_' + env).append('<tr class="data">' +
                     '   <td>' + le.InvestigationID + '</td>' +
                     '   <td>' + le.Time + '</td>' +
                     '   <td>' + le.Event + '</td>' +
                     '   <td>' + le.Occurrences + '</td>' +
                     '   <td>' + le.Host + '</td>' +
-                    '   <td>' + le.Cluster + '</td>' 
-                    
+                    '   <td>' + le.Cluster + '</td>'
+
                     );
                 });
 
@@ -218,9 +267,9 @@ function GetPostsIntoTable(env,location,start,end) {
                 $('#table_' + env).dataTable({
                     "bPaginate": false,
                     "bJQueryUI": true,
-                    "bFilter": false, 
+                    "bFilter": false,
                     "bInfo": false,
-
+                    //this bit groups the rows according to the investigation id.
                     "fnDrawCallback": function (oSettings) {
                         if (oSettings.aiDisplay.length == 0) {
                             return;
@@ -232,15 +281,23 @@ function GetPostsIntoTable(env,location,start,end) {
                         for (var i = 0; i < nTrs.length; i++) {
                             var iDisplayIndex = oSettings._iDisplayStart + i;
                             var sGroup = oSettings.aoData[oSettings.aiDisplay[iDisplayIndex]]._aData[0];
-                            if (sGroup != sLastGroup) {
-                                var nGroup = document.createElement('tr');
-                                var nCell = document.createElement('td');
-                                nCell.colSpan = iColspan;
-                                nCell.className = "group";
-                                nCell.innerHTML = sGroup;
-                                nGroup.appendChild(nCell);
-                                nTrs[i].parentNode.insertBefore(nGroup, nTrs[i]);
-                                sLastGroup = sGroup;
+
+                            if (sGroup != 0) {
+                                if (sGroup != sLastGroup) {
+                                    var nGroup = document.createElement('tr');
+                                    var nCell = document.createElement('td');
+                                    nCell.colSpan = iColspan;
+                                    nCell.className = "group";
+
+                                    nCell.innerHTML += '<span class=spinner id="inv_' + env + '_' + sGroup + '"></span><em> Loading Investigation #' + sGroup + '</em>';
+                                    nGroup.appendChild(nCell);
+                                    nTrs[i].parentNode.insertBefore(nGroup, nTrs[i]);
+
+                                    addSpinner("inv_" + env + "_" + sGroup);
+                                    //investigation loading code goes here. sGroup holds the investigationID.
+
+                                    sLastGroup = sGroup;
+                                }
                             }
                         }
                     },
@@ -254,19 +311,32 @@ function GetPostsIntoTable(env,location,start,end) {
 
                 });
 
+                //$('.group').empty();
+
 
 
                 $("tbody").selectable({
                     filter: 'td',
                     selected: function (event, ui) {
                         $(ui.selected).siblings().addClass('ui-selected');
+
                     },
-                    unselected:function(event,ui) {
+                    unselected: function (event, ui) {
                         $(ui.unselected).siblings().removeClass('ui-selected');
+                    },
+
+                    stop: function (event, ui) {
+
+                        //enable and disabled the button annotate button depending on if any cells are selected.
+                        if ($("td.ui-selected").length > 0) {
+                            $("#Btn_anno_" + this.parentElement.id.substring(6)).button("enable");
+                        } else {
+                            $("#Btn_anno_" + this.parentElement.id.substring(6)).button("disable");
+                        }
                     }
                 });
 
-                
+
 
 
             } else {

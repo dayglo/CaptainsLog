@@ -26,3 +26,14 @@ body
 }
 
 .dataTables_wrapper .fg-toolbar { display: none; }
+
+.group 
+{
+	background:Yellow !important;	
+}
+
+.spinner 
+{
+	padding: 0 19px 0 2px;
+	margin-right: 4px;
+}

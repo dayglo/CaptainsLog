@@ -39,6 +39,16 @@ namespace CaptainsLog
         public string environment;
     }
 
+
+    public class InvestigationEntry
+    {
+        public int InvestigationID;
+        public string Text;
+        public string SupportRef;
+        public bool Complete;
+        public bool KnownError;
+    }
+
 /// <summary>
     /// Summary description for JobPost1ws
     /// </summary>
@@ -57,11 +67,16 @@ namespace CaptainsLog
             using (SqlConnection myConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["Live"].ConnectionString))
             {
                 string SQL = "SELECT [Time], [Event],[Occurrences],  [Host], [Cluster],[ServerID],[EntryID],[investigationID],[Environment] FROM [EntryView] " +
-                "WHERE ([Environment] = '"+ LogRequest.environment + "') " +
-                "AND (Time BETWEEN '" + LogRequest.startDate + "' AND '" + LogRequest.endDate + "') " +
+                "WHERE ([Environment] = @environment) " +
+                "AND (Time BETWEEN @startDate AND @endDate) " +
                 "ORDER BY investigationID,Time ";
 
                 SqlCommand myCommand = new SqlCommand(SQL, myConnection);
+                
+                myCommand.Parameters.AddWithValue("@environment",LogRequest.environment);
+                myCommand.Parameters.AddWithValue("@startDate", LogRequest.startDate);
+                myCommand.Parameters.AddWithValue("@endDate", LogRequest.endDate);
+
                 myConnection.Open();
                 myCommand.ExecuteNonQuery();
                 myConnection.Close();
@@ -81,6 +96,10 @@ namespace CaptainsLog
                     if (!(row["InvestigationID"] == System.DBNull.Value))
                     {
                         le.InvestigationID = (long)row["InvestigationID"];
+                    }
+                    else
+                    {
+                        le.InvestigationID = 0;
                     }
 
                     le.Time = row["Time"].ToString();
@@ -102,5 +121,88 @@ namespace CaptainsLog
             
             }
         }
+
+
+        [WebMethod]
+        public InvestigationEntry GetInvestigation(int id)
+        {
+            using (SqlConnection myConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["Live"].ConnectionString))
+            {
+                //string SQL = "SELECT [Time], [Event],[Occurrences],  [Host], [Cluster],[ServerID],[EntryID],[investigationID],[Environment] FROM [EntryView] " +
+                //"WHERE ([Environment] = '" + LogRequest.environment + "') " +
+                //"AND (Time BETWEEN '" + LogRequest.startDate + "' AND '" + LogRequest.endDate + "') " +
+                //"ORDER BY investigationID,Time ";
+
+                string SQL = "SELECT [investigationID], [Text], [SupportRef], [Complete],[KnownError] " +
+                             "FROM [captains_log].[dbo].[Investigations] " +
+                             "WHERE investigationID = @id";
+
+                SqlCommand myCommand = new SqlCommand(SQL, myConnection);
+                myCommand.Parameters.AddWithValue("@id", id);
+                myConnection.Open();
+                myCommand.ExecuteNonQuery();
+                myConnection.Close();
+
+                SqlDataAdapter dataAdapter = new SqlDataAdapter();
+                dataAdapter.SelectCommand = myCommand;
+
+                DataSet DSet = new DataSet();
+                dataAdapter.Fill(DSet);
+
+                //get the first row from the first table;
+
+                InvestigationEntry entry = new InvestigationEntry();
+                entry.InvestigationID = (int)DSet.Tables[0].Rows[0]["InvestigationID"];
+                entry.Text = DSet.Tables[0].Rows[0]["Text"].ToString();
+                entry.SupportRef = DSet.Tables[0].Rows[0]["SupportRef"].ToString();
+                entry.Complete = (bool)DSet.Tables[0].Rows[0]["Complete"];
+                entry.KnownError = (bool)DSet.Tables[0].Rows[0]["KnownError"];
+
+                return entry;
+
+            }
+        }
+
+        [WebMethod]
+        public void NewInvestigation(InvestigationEntry InvestigationEntry)
+        {
+            using (SqlConnection myConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["Live"].ConnectionString))
+            {
+                //string SQL = "SELECT [Time], [Event],[Occurrences],  [Host], [Cluster],[ServerID],[EntryID],[investigationID],[Environment] FROM [EntryView] " +
+                //"WHERE ([Environment] = '" + LogRequest.environment + "') " +
+                //"AND (Time BETWEEN '" + LogRequest.startDate + "' AND '" + LogRequest.endDate + "') " +
+                //"ORDER BY investigationID,Time ";
+
+                string SQL = "INSERT INTO [captains_log].[dbo].[Investigations] ([investigationID], [Text], [SupportRef], [Complete],[KnownError]) " +
+                             "VALUES(@InvestigationID, @Text, @SupportRef @Complete @KnownError";
+                
+                SqlCommand myCommand = new SqlCommand(SQL, myConnection);
+                myCommand.Parameters.AddWithValue("@InvestigationID", InvestigationEntry.InvestigationID);
+                myCommand.Parameters.AddWithValue("@Text", InvestigationEntry.Text);
+                myCommand.Parameters.AddWithValue("@SupportRef", InvestigationEntry.SupportRef);
+                myCommand.Parameters.AddWithValue("@Complete", InvestigationEntry.Complete);
+                myCommand.Parameters.AddWithValue("@KnownError", InvestigationEntry.KnownError);
+
+
+                myConnection.Open();
+                myCommand.ExecuteNonQuery();
+                myConnection.Close();
+
+                SqlDataAdapter dataAdapter = new SqlDataAdapter();
+                dataAdapter.SelectCommand = myCommand;
+
+                DataSet DSet = new DataSet();
+                dataAdapter.Fill(DSet);
+
+                InvestigationEntry entry = new InvestigationEntry();
+                entry.InvestigationID = (int)DSet.Tables[0].Rows[0]["InvestigationID"];
+                entry.Text = DSet.Tables[0].Rows[0]["Text"].ToString();
+                entry.SupportRef = DSet.Tables[0].Rows[0]["SupportRef"].ToString();
+                entry.Complete = (bool)DSet.Tables[0].Rows[0]["Complete"];
+                entry.KnownError = (bool)DSet.Tables[0].Rows[0]["KnownError"];
+
+            }
+        }
+
     }
 }

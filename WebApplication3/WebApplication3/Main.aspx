@@ -19,7 +19,7 @@
     <script src="js/json2.js" type="text/javascript"></script>
     <script src="js/jquery-ui-1.8.17.custom.min.js" type="text/javascript"></script>
     <script type="text/javascript" charset="utf-8" src="/DataTables/media/js/jquery.dataTables.js"></script>
-
+    <script src="js/spin.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="js/Default.js"> </script>
 </head>
 <body>
@@ -30,6 +30,21 @@
     <div id="output"></div>
  
     </form>
+
+
+    <div id="dialog-form" title="Add Investigation Details">
+	<p class="validateTips">Enter your notes regarding the selected log events</p>
+
+	<form>
+	<fieldset>
+		<label for="text">Text</label>
+		<input type="text" name="text" id="InvestigationText" class="text ui-widget-content ui-corner-all" />
+		<!--<label for="KnownError">Known Error</label>
+		<input type="text" name="KnownError" id="KnownError" value="" class="text ui-widget-content ui-corner-all" />-->
+	</fieldset>
+	</form>
+</div>
+
 
 </body>
 </html>
