@@ -327,7 +327,7 @@ function GetPostsIntoTable(env,location,start,end) {
                                     nCell.colSpan = iColspan;
                                     nCell.className = "group";
 
-                                    nCell.innerHTML += '<span class=spinner id="inv_' + env + '_' + sGroup + '"></span><em> Loading Investigation #' + sGroup + '</em>';
+                                    nCell.innerHTML += '<i class="icon-chevron-down"></i><span class=spinner id="inv_' + env + '_' + sGroup + '"></span> <em> Loading Investigation #' + sGroup + '</em>';
                                     nGroup.appendChild(nCell);
                                     nTrs[i].parentNode.insertBefore(nGroup, nTrs[i]);
 
@@ -345,7 +345,7 @@ function GetPostsIntoTable(env,location,start,end) {
                                         dataType: "json",
                                         success: function (response) {
                                             var invEntry = response.d;
-                                            nCell.innerHTML = invEntry.Text;
+                                            nCell.innerHTML = '<i class="icon-chevron-down"></i> ' + invEntry.Text;
                                         },
                                         failure: function (msg) {
                                             alert(msg);
