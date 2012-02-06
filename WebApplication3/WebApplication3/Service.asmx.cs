@@ -42,11 +42,12 @@ namespace CaptainsLog
 
     public class InvestigationEntry
     {
-        public int InvestigationID;
+        public long InvestigationID;
         public string Text;
         public string SupportRef;
         public bool Complete;
         public bool KnownError;
+        public List<int> EntryIDs;
     }
 
 /// <summary>
@@ -102,6 +103,7 @@ namespace CaptainsLog
                         le.InvestigationID = 0;
                     }
 
+                    le.EntryID = (long)row["entryID"];
                     le.Time = row["Time"].ToString();
                     le.Occurrences = (long)row["Occurrences"];
                     le.ServerID = (int)row["ServerID"];
@@ -152,7 +154,7 @@ namespace CaptainsLog
                 //get the first row from the first table;
 
                 InvestigationEntry entry = new InvestigationEntry();
-                entry.InvestigationID = (int)DSet.Tables[0].Rows[0]["InvestigationID"];
+                entry.InvestigationID = (long)DSet.Tables[0].Rows[0]["investigationID"];
                 entry.Text = DSet.Tables[0].Rows[0]["Text"].ToString();
                 entry.SupportRef = DSet.Tables[0].Rows[0]["SupportRef"].ToString();
                 entry.Complete = (bool)DSet.Tables[0].Rows[0]["Complete"];
@@ -173,33 +175,29 @@ namespace CaptainsLog
                 //"AND (Time BETWEEN '" + LogRequest.startDate + "' AND '" + LogRequest.endDate + "') " +
                 //"ORDER BY investigationID,Time ";
 
-                string SQL = "INSERT INTO [captains_log].[dbo].[Investigations] ([investigationID], [Text], [SupportRef], [Complete],[KnownError]) " +
-                             "VALUES(@InvestigationID, @Text, @SupportRef @Complete @KnownError";
+                string SQL = "BEGIN TRANSACTION UpdateEntriesAndInvestigations " +
+                             "INSERT INTO [captains_log].[dbo].[Investigations] ([Text], [SupportRef], [Complete],[KnownError]) " +
+                             "VALUES( @Text, @SupportRef, @Complete, @KnownError) " +
+                            
+                             "UPDATE [captains_log].[dbo].[entries] " +
+                             "SET investigationID = @@IDENTITY " +
+                             "WHERE entryID IN (@entryIDs) " +
+                             "COMMIT TRANSACTION UpdateEntriesAndInvestigations";
                 
                 SqlCommand myCommand = new SqlCommand(SQL, myConnection);
-                myCommand.Parameters.AddWithValue("@InvestigationID", InvestigationEntry.InvestigationID);
                 myCommand.Parameters.AddWithValue("@Text", InvestigationEntry.Text);
                 myCommand.Parameters.AddWithValue("@SupportRef", InvestigationEntry.SupportRef);
                 myCommand.Parameters.AddWithValue("@Complete", InvestigationEntry.Complete);
                 myCommand.Parameters.AddWithValue("@KnownError", InvestigationEntry.KnownError);
-
+                myCommand.CommandText = myCommand.CommandText.Replace(
+                    "@entryIDs",
+                    String.Join(",",InvestigationEntry.EntryIDs.Select(b => b.ToString()))
+                );
 
                 myConnection.Open();
                 myCommand.ExecuteNonQuery();
                 myConnection.Close();
 
-                SqlDataAdapter dataAdapter = new SqlDataAdapter();
-                dataAdapter.SelectCommand = myCommand;
-
-                DataSet DSet = new DataSet();
-                dataAdapter.Fill(DSet);
-
-                InvestigationEntry entry = new InvestigationEntry();
-                entry.InvestigationID = (int)DSet.Tables[0].Rows[0]["InvestigationID"];
-                entry.Text = DSet.Tables[0].Rows[0]["Text"].ToString();
-                entry.SupportRef = DSet.Tables[0].Rows[0]["SupportRef"].ToString();
-                entry.Complete = (bool)DSet.Tables[0].Rows[0]["Complete"];
-                entry.KnownError = (bool)DSet.Tables[0].Rows[0]["KnownError"];
 
             }
         }

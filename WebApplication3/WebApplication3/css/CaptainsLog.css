@@ -37,3 +37,20 @@ body
 	padding: 0 19px 0 2px;
 	margin-right: 4px;
 }
+
+#InvestigationText
+{
+	width:100% !important;
+	height:100% !important;
+}
+
+#invForm
+{
+	height:100% !important;
+}
+
+fieldset 
+{
+	height:100% !important;
+}
+

@@ -33,17 +33,19 @@
 
 
     <div id="dialog-form" title="Add Investigation Details">
-	<p class="validateTips">Enter your notes regarding the selected log events</p>
+	    <p class="validateTips">Enter your notes regarding the selected log events</p>
 
-	<form>
-	<fieldset>
-		<label for="text">Text</label>
-		<input type="text" name="text" id="InvestigationText" class="text ui-widget-content ui-corner-all" />
-		<!--<label for="KnownError">Known Error</label>
-		<input type="text" name="KnownError" id="KnownError" value="" class="text ui-widget-content ui-corner-all" />-->
-	</fieldset>
-	</form>
-</div>
+	    <form id="invForm">
+	    <fieldset>
+		    <label for="text">Text</label>
+		    
+            
+            <textarea name="text" id="InvestigationText" class="investigationTextArea text ui-widget-content ui-corner-all">test</textarea>
+		    <!--<label for="KnownError">Known Error</label>
+		    <input type="text" name="KnownError" id="KnownError" value="" class="text ui-widget-content ui-corner-all" />-->
+	    </fieldset>
+	    </form>
+    </div>
 
 
 </body>

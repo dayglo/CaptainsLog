@@ -44,15 +44,15 @@ $(document).ready(function () {
         var dayOfWeek = targetDate.getDay();
 
         switch (true) {
-            //monday                  
+            //monday                        
             case (dayOfWeek == 1):
                 targetDate.setDate(targetDate.getDate() - 3);
                 break;
-            //sunday                  
+            //sunday                        
             case (dayOfWeek == 0):
                 targetDate.setDate(targetDate.getDate() - 2);
                 break;
-            //rest of week                  
+            //rest of week                        
             default:
                 targetDate.setDate(targetDate.getDate() - 1);
                 break;
@@ -63,37 +63,65 @@ $(document).ready(function () {
     if (endDate == undefined) { endDate = new Date().toString().substr(4, 20) }
 
 
+    var text = $("#InvestigationText"),
+    //email = $("#email"),
+    //password = $("#password"),
+		allFields = $([]).add(text);  //.add(email).add(password),
+
+
     $("#dialog-form").dialog({
         autoOpen: false,
         height: 300,
-        width: 350,
+        width: 700,
         modal: true,
         buttons: {
             "Save": function () {
                 var bValid = true;
                 allFields.removeClass("ui-state-error");
 
-                bValid = bValid && checkLength(text, "Text", 3, 4096);
-                //bValid = bValid && checkLength(email, "email", 6, 80);
-                //bValid = bValid && checkLength(password, "password", 5, 16);
+                //get all entry IDs from the selected rows in the focused table.
+                var entries = [];
+                $(".focusedTable td").filter(".ui-selected.cell_EntryID").each(function (i, td) {
+                    entries.push(td.innerHTML);
+                });
 
-                //bValid = bValid && checkRegexp(name, /^[a-z]([0-9a-z_])+$/i, "Username may consist of a-z, 0-9, underscores, begin with a letter.");
-                // From jquery.validate.js (by joern), contributed by Scott Gonzalez: http://projects.scottsplayground.com/email_address_validation/
-                //bValid = bValid && checkRegexp(email, /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i, "eg. ui@jquery.com");
-                //bValid = bValid && checkRegexp(password, /^([0-9a-zA-Z])+$/, "Password field only allow : a-z 0-9");
-
-                if (bValid) {
-                    
-                    //add to db.
-                    $(this).dialog("close");
+                //add to db.
+                var investigation = {
+                    "InvestigationEntry": {
+                        "Text": text[0].value,
+                        "Complete": false,
+                        "KnownError": false,
+                        "SupportRef": "test00001",
+                        //for each selected table 
+                        "EntryIDs": entries
+                    }
                 }
+
+                $.ajax({
+                    type: "POST",
+                    url: "Service.asmx/NewInvestigation",
+                    data: JSON.stringify(investigation),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) {
+
+                        alert("submitted successfully. reloading table...");
+
+
+                    },
+                    failure: function (msg) {
+                        alert(msg);
+                    }
+                });
+                $(this).dialog("close");
+
             },
             Cancel: function () {
                 $(this).dialog("close");
             }
         },
         close: function () {
-            allFields.val("").removeClass("ui-state-error");
+            //allFields.val("").removeClass("ui-state-error");
         }
     });
 
@@ -176,19 +204,27 @@ $(document).ready(function () {
                 //for each environment in the reporting area
                     area.Environments,
                     function (i2, env2) {
-                        //write the name and connect to the webservice to get all the data
+                        //write the name of the VC
                         $('#output').append('<h3>' + env2.name + ' [VC:' + env2.VCServer + ']</h3>');
+                        //Create button html
                         $('#output').append(' <button type="button" id="Btn_anno_' + env2.VCServer + '">Annotate selected events</button>');
+                        //Initialise jquery button class magickery 
                         $("#Btn_anno_" + env2.VCServer).button();
-                        $("#Btn_anno_" + env2.VCServer).click(function () {
-				            $( "#dialog-form" ).dialog( "open" );
-			            });
                         $("#Btn_anno_" + env2.VCServer).button("disable");
 
-
-
+                        //render the table
                         $('#output').append('<div id="data_' + env2.VCServer + '"></div><div id="comments_' + env2.VCServer + '"> &nbsp </div>');
                         GetPostsIntoTable(env2.VCServer, "data_" + env2.VCServer, startDate, endDate);
+
+                        //add handler to the button
+                        $("#Btn_anno_" + env2.VCServer).click(function () {
+                            $('table').removeClass('focusedTable');
+                            $("#table_" + env2.VCServer).addClass('focusedTable');
+                            $("#dialog-form").dialog("open");
+                        });
+
+
+
                     }
                 );
             }
@@ -237,6 +273,7 @@ function GetPostsIntoTable(env,location,start,end) {
                 //create the table heading row
                 $('#table_' + env).append('<thead><tr><!--<th colspan="6" id="' + env + '">' + env + '</th>--></tr><tr>' +
                 '   <td>InvestigationID</td>' +
+                 '  <td>EntryID</td>' +
                 '   <td>Time</td>' +
                 '   <td>Event</td>' +
                 '   <td>#</td>' +
@@ -252,6 +289,7 @@ function GetPostsIntoTable(env,location,start,end) {
                 $.each(les, function (index, le) {
                     $('#table_' + env).append('<tr class="data">' +
                     '   <td>' + le.InvestigationID + '</td>' +
+                    '   <td class="cell_EntryID">' + le.EntryID + '</td>' +
                     '   <td>' + le.Time + '</td>' +
                     '   <td>' + le.Event + '</td>' +
                     '   <td>' + le.Occurrences + '</td>' +
@@ -294,7 +332,25 @@ function GetPostsIntoTable(env,location,start,end) {
                                     nTrs[i].parentNode.insertBefore(nGroup, nTrs[i]);
 
                                     addSpinner("inv_" + env + "_" + sGroup);
-                                    //investigation loading code goes here. sGroup holds the investigationID.
+
+
+                                    //Load the investigation details into the header, and roll up the rows.
+
+                                    var DTO = { "id" : sGroup };
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "Service.asmx/GetInvestigation",
+                                        data: JSON.stringify(DTO),
+                                        contentType: "application/json; charset=utf-8",
+                                        dataType: "json",
+                                        success: function (response) {
+                                            var invEntry = response.d;
+                                            nCell.innerHTML = invEntry.Text;
+                                        },
+                                        failure: function (msg) {
+                                            alert(msg);
+                                        }
+                                    });
 
                                     sLastGroup = sGroup;
                                 }
