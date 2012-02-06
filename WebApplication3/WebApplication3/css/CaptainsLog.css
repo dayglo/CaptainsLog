@@ -1,0 +1,56 @@
+﻿td {
+	font-size:12px;
+
+}
+
+#feedback { font-size: 1.4em; }
+#selectable .ui-selecting { background: #FECA40; }
+#selectable .ui-selected { background: #F39814 !important; color: purple !important; }
+#selectable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
+.ui-selected
+{
+	background:Gray !important; 
+
+}
+
+
+
+input 
+{
+	display:inline !important;
+}
+	
+body
+{
+	line-height:14px !important;	
+}
+
+.dataTables_wrapper .fg-toolbar { display: none; }
+
+.group 
+{
+	background:Yellow !important;	
+}
+
+.spinner
+{
+	
+	
+}
+
+#InvestigationText
+{
+	width:100% !important;
+	height:100% !important;
+}
+
+#invForm
+{
+	height:100% !important;
+}
+
+fieldset 
+{
+	height:100% !important;
+}
+
