@@ -1,4 +1,6 @@
-﻿function getUrlVars() {
+﻿
+
+function getUrlVars() {
     var vars = [], hash;
     var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
     for (var i = 0; i < hashes.length; i++) {
@@ -174,9 +176,9 @@ $(document).ready(function () {
             {
                 "Name": "Heritage HBOS",
                 "Environments": [
-                    { "name": "Infra", "VCServer": "infrp0101" },
-                    { "name": "Preprod", "VCServer": "infrp0100" },
-                    { "name": "Prod", "VCServer": "infrl0100" }
+                    { "name": "Infra", "VCServer": "infrp0101" }//,
+                  //  { "name": "Preprod", "VCServer": "infrp0100" },
+                  //  { "name": "Prod", "VCServer": "infrl0100" }
                  ]
 
             }
@@ -286,16 +288,22 @@ function GetPostsIntoTable(env,location,start,end) {
 
                 //render the data
 
+
                 $.each(les, function (index, le) {
-                    $('#table_' + env).append('<tr class="data">' +
+                    var rowTag = '<tr class="data">';
+                    if (le.InvestigationID != 0) {
+                        rowTag = '<tr class="data investigated inv_' + le.InvestigationID + '">';
+
+                    }
+
+                    $('#table_' + env).append(rowTag +
                     '   <td>' + le.InvestigationID + '</td>' +
                     '   <td class="cell_EntryID">' + le.EntryID + '</td>' +
                     '   <td>' + le.Time + '</td>' +
                     '   <td>' + le.Event + '</td>' +
                     '   <td>' + le.Occurrences + '</td>' +
                     '   <td>' + le.Host + '</td>' +
-                    '   <td>' + le.Cluster + '</td>'
-
+                    '   <td>' + le.Cluster + '</td></tr>'
                     );
                 });
 
@@ -309,6 +317,7 @@ function GetPostsIntoTable(env,location,start,end) {
                     "bInfo": false,
                     //this bit groups the rows according to the investigation id.
                     "fnDrawCallback": function (oSettings) {
+                        //alert('DataTables has redrawn the table');
                         if (oSettings.aiDisplay.length == 0) {
                             return;
                         }
@@ -318,7 +327,7 @@ function GetPostsIntoTable(env,location,start,end) {
                         var sLastGroup = "";
                         for (var i = 0; i < nTrs.length; i++) {
                             var iDisplayIndex = oSettings._iDisplayStart + i;
-                            var sGroup = oSettings.aoData[oSettings.aiDisplay[iDisplayIndex]]._aData[0];
+                            var sGroup = oSettings.aoData[oSettings.aiDisplay[iDisplayIndex]]._aData[0]; // 0 for the first cell in the row, which is investigation id.
 
                             if (sGroup != 0) {
                                 if (sGroup != sLastGroup) {
@@ -327,29 +336,57 @@ function GetPostsIntoTable(env,location,start,end) {
                                     nCell.colSpan = iColspan;
                                     nCell.className = "group";
 
-                                    nCell.innerHTML += '<i class="icon-chevron-down"></i><span class=spinner id="inv_' + env + '_' + sGroup + '"></span> <em> Loading Investigation #' + sGroup + '</em>';
+                                    nCell.innerHTML += '<span class=spinner id="inv_' + env + '_' + sGroup + '"></span> <em> Loading Investigation #' + sGroup + '</em>';
                                     nGroup.appendChild(nCell);
                                     nTrs[i].parentNode.insertBefore(nGroup, nTrs[i]);
 
                                     addSpinner("inv_" + env + "_" + sGroup);
 
+                                    //Load the investigation details into the header row, and set up the row so that it has behaviour (rolling up and down)
 
-                                    //Load the investigation details into the header, and roll up the rows.
-
-                                    var DTO = { "id" : sGroup };
+                                    var DTO = { "id": sGroup };
                                     $.ajax({
+                                        async: false,
                                         type: "POST",
                                         url: "Service.asmx/GetInvestigation",
                                         data: JSON.stringify(DTO),
                                         contentType: "application/json; charset=utf-8",
                                         dataType: "json",
+                                        
                                         success: function (response) {
                                             var invEntry = response.d;
-                                            nCell.innerHTML = '<i class="icon-chevron-down"></i> ' + invEntry.Text;
+
+                                            //add the nice chevron, with the correct ID< so that when it gets clicked it can rollup the right rows
+                                            nCell.innerHTML = '<i class="icon-chevron-right " id="rowhider_' + invEntry.InvestigationID + '" style="float: left;"></i><div class="investigationHeaderText collapsed-text">' + invEntry.Text.replace(/\n/g, "<br/>") + "</div>";
+
+                                            //hide, because they should be hid initially
+                                            $('.inv_' + invEntry.InvestigationID).hide();
+
+                                            //add a click handler which hides and unhides the rows
+                                            $("#rowhider_" + invEntry.InvestigationID).click(function () {
+                                                if ($(this).hasClass('rowshidden')) {
+                                                    //show
+                                                    
+                                                    $('.inv_' + invEntry.InvestigationID).show();
+                                                    $(this).removeClass('icon-chevron-right');
+                                                    $(this).addClass('icon-chevron-down');
+                                                    $(this).removeClass('rowshidden');
+                                                    $(this).parent().children('div.investigationHeaderText').removeClass('collapsed-text');
+                                                } else {
+                                                    //hide
+                                                    $('.inv_' + invEntry.InvestigationID).hide();
+                                                    $(this).addClass('icon-chevron-right');
+                                                    $(this).removeClass('icon-chevron-down');
+                                                    $(this).addClass('rowshidden');
+                                                    $(this).parent().children('div.investigationHeaderText').addClass('collapsed-text');
+                                                }
+                                            });
                                         },
+
                                         failure: function (msg) {
                                             alert(msg);
                                         }
+
                                     });
 
                                     sLastGroup = sGroup;
@@ -367,9 +404,7 @@ function GetPostsIntoTable(env,location,start,end) {
 
                 });
 
-                //$('.group').empty();
-
-
+                //make rows selectable
 
                 $("tbody").selectable({
                     filter: 'td',
@@ -392,8 +427,9 @@ function GetPostsIntoTable(env,location,start,end) {
                     }
                 });
 
+                //make group header rows unselectable
 
-
+                $("td.group").removeClass("ui-selectee");
 
             } else {
                 $('#' + location).append("<p>No Data</p>");

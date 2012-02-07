@@ -30,6 +30,7 @@ body
 .group 
 {
 	background:Yellow !important;	
+	margin-top:1px;
 }
 
 .spinner
@@ -54,3 +55,25 @@ fieldset
 	height:100% !important;
 }
 
+#UserName
+{
+	display:none;
+}
+
+.table-striped tbody tr.odd.investigated td{
+    background-color: #FFFFFE;
+}
+.table-striped tbody tr.even.investigated td{
+    background-color: #FFFFDD;
+}
+
+div.investigationHeaderText:first-line
+{
+	font-weight:bold;
+}
+
+.collapsed-text
+{
+	height:1.3em;
+	overflow:hidden;
+}
