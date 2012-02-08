@@ -46,15 +46,15 @@ $(document).ready(function () {
         var dayOfWeek = targetDate.getDay();
 
         switch (true) {
-            //monday                        
+            //monday                         
             case (dayOfWeek == 1):
                 targetDate.setDate(targetDate.getDate() - 3);
                 break;
-            //sunday                        
+            //sunday                         
             case (dayOfWeek == 0):
                 targetDate.setDate(targetDate.getDate() - 2);
                 break;
-            //rest of week                        
+            //rest of week                         
             default:
                 targetDate.setDate(targetDate.getDate() - 1);
                 break;
@@ -106,15 +106,17 @@ $(document).ready(function () {
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (response) {
-
-                        alert("submitted successfully. reloading table...");
-
+                        //alert("submitted successfully. reloading table...");
+                        
+                        
+                        GetPostsIntoTable(env2.VCServer, "data_" + env2.VCServer, startDate, endDate);
 
                     },
                     failure: function (msg) {
                         alert(msg);
                     }
                 });
+
                 $(this).dialog("close");
 
             },
@@ -176,9 +178,9 @@ $(document).ready(function () {
             {
                 "Name": "Heritage HBOS",
                 "Environments": [
-                    { "name": "Infra", "VCServer": "infrp0101" }//,
-                  //  { "name": "Preprod", "VCServer": "infrp0100" },
-                  //  { "name": "Prod", "VCServer": "infrl0100" }
+                    { "name": "Infra", "VCServer": "infrp0101"}//,
+                //  { "name": "Preprod", "VCServer": "infrp0100" },
+                //  { "name": "Prod", "VCServer": "infrl0100" }
                  ]
 
             }
@@ -218,12 +220,13 @@ $(document).ready(function () {
                         $('#output').append('<div id="data_' + env2.VCServer + '"></div><div id="comments_' + env2.VCServer + '"> &nbsp </div>');
                         GetPostsIntoTable(env2.VCServer, "data_" + env2.VCServer, startDate, endDate);
 
-                        //add handler to the button
-                        $("#Btn_anno_" + env2.VCServer).click(function () {
-                            $('table').removeClass('focusedTable');
-                            $("#table_" + env2.VCServer).addClass('focusedTable');
-                            $("#dialog-form").dialog("open");
-                        });
+//                        //add handler to the button
+//                        $("#Btn_anno_" + env2.VCServer).click(function () {
+//                            $('table').removeClass('focusedTable');
+//                            $("table#" + env2.VCServer).addClass('focusedTable');
+//                            $('#InvestigationText').Empty();
+//                            $("#dialog-form").dialog("open");
+//                        });
 
 
 
@@ -264,16 +267,17 @@ function GetPostsIntoTable(env,location,start,end) {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (response) {
+            $('#' + location).empty();
 
             var les = response.d;
 
             if (les.length != 0) {
 
                 //Create the table header
-                $('#' + location).append('<table id="table_' + env + '" class="display table-striped table-bordered table-condensed"></table');
+                $('#' + location).append('<table id="' + env + '" class="display table-striped table-bordered table-condensed"></table');
 
                 //create the table heading row
-                $('#table_' + env).append('<thead><tr><!--<th colspan="6" id="' + env + '">' + env + '</th>--></tr><tr>' +
+                $('table#' + env).append('<thead><tr><!--<th colspan="6" id="' + env + '">' + env + '</th>--></tr><tr>' +
                 '   <td>InvestigationID</td>' +
                  '  <td>EntryID</td>' +
                 '   <td>Time</td>' +
@@ -296,7 +300,7 @@ function GetPostsIntoTable(env,location,start,end) {
 
                     }
 
-                    $('#table_' + env).append(rowTag +
+                    $('table#' + env).append(rowTag +
                     '   <td>' + le.InvestigationID + '</td>' +
                     '   <td class="cell_EntryID">' + le.EntryID + '</td>' +
                     '   <td>' + le.Time + '</td>' +
@@ -308,9 +312,9 @@ function GetPostsIntoTable(env,location,start,end) {
                 });
 
                 //close the table body
-                $('#table_' + env).append("</tbody>");
+                $('table#' + env).append("</tbody>");
 
-                $('#table_' + env).dataTable({
+                $('table#' + env).dataTable({
                     "bPaginate": false,
                     "bJQueryUI": true,
                     "bFilter": false,
@@ -322,7 +326,7 @@ function GetPostsIntoTable(env,location,start,end) {
                             return;
                         }
 
-                        var nTrs = $('#table_' + env + ' tbody tr');
+                        var nTrs = $('table#' + env + ' tbody tr');
                         var iColspan = nTrs[0].getElementsByTagName('td').length;
                         var sLastGroup = "";
                         for (var i = 0; i < nTrs.length; i++) {
@@ -352,21 +356,24 @@ function GetPostsIntoTable(env,location,start,end) {
                                         data: JSON.stringify(DTO),
                                         contentType: "application/json; charset=utf-8",
                                         dataType: "json",
-                                        
+
                                         success: function (response) {
                                             var invEntry = response.d;
 
                                             //add the nice chevron, with the correct ID< so that when it gets clicked it can rollup the right rows
-                                            nCell.innerHTML = '<i class="icon-chevron-right " id="rowhider_' + invEntry.InvestigationID + '" style="float: left;"></i><div class="investigationHeaderText collapsed-text">' + invEntry.Text.replace(/\n/g, "<br/>") + "</div>";
+                                            nCell.innerHTML = '<i class="icon-chevron-down " id="rowhider_' + invEntry.InvestigationID + '" style="float: left;"></i>' +
+                                                              '<div class="investigationHeaderText">' + invEntry.Text.replace(/\n/g, "<br/>") + "</div>" +
+                                                              '<a class="btn" id="edit_btn_' + invEntry.InvestigationID + '" href="#" style="float:right;"><i class="icon-pencil"></i> Edit</a>';
 
-                                            //hide, because they should be hid initially
-                                            $('.inv_' + invEntry.InvestigationID).hide();
+
+                                            //hide, because they should be hid initially. actually, nah
+                                            //$('.inv_' + invEntry.InvestigationID).hide();
 
                                             //add a click handler which hides and unhides the rows
                                             $("#rowhider_" + invEntry.InvestigationID).click(function () {
                                                 if ($(this).hasClass('rowshidden')) {
                                                     //show
-                                                    
+
                                                     $('.inv_' + invEntry.InvestigationID).show();
                                                     $(this).removeClass('icon-chevron-right');
                                                     $(this).addClass('icon-chevron-down');
@@ -381,6 +388,17 @@ function GetPostsIntoTable(env,location,start,end) {
                                                     $(this).parent().children('div.investigationHeaderText').addClass('collapsed-text');
                                                 }
                                             });
+
+                                            //add a handler to the investigation text edit button
+
+                                            $("#edit_btn_" + invEntry.InvestigationID).click(function () {
+                                                $('table').removeClass('focusedTable');
+                                                $(this).closest('table').addClass('focusedTable');
+                                                var text = $(this).parent().children('div.investigationHeaderText').contents();
+                                                $('#InvestigationText').html(text);
+                                                $("#dialog-form").dialog("open");
+                                            });
+
                                         },
 
                                         failure: function (msg) {
@@ -429,7 +447,7 @@ function GetPostsIntoTable(env,location,start,end) {
 
                 //make group header rows unselectable
 
-                $("td.group").removeClass("ui-selectee");
+                $("td.group").unselectable();  //this isnt working
 
             } else {
                 $('#' + location).append("<p>No Data</p>");

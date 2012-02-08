@@ -67,13 +67,25 @@ fieldset
     background-color: #FFFFDD;
 }
 
+div.investigationHeaderText
+{
+	margin: 0px 3px 3px 20px;
+	line-height:1.3em;
+	float:left;
+	
+}
+
 div.investigationHeaderText:first-line
 {
 	font-weight:bold;
+	font-size:14px;
+	padding-bottom:15px;
+	
 }
 
 .collapsed-text
 {
 	height:1.3em;
 	overflow:hidden;
+	text-overflow:ellipsis;
 }
