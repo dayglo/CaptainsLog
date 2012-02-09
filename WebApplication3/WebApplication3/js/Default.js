@@ -209,9 +209,10 @@ $(document).ready(function () {
                         $('#output').append('<div class="buttonrow">' +
 
                         //show all and hide all buttons
-                        '<a id="Btn_showall_' + env2.VCServer + '"class="btn "><i class="icon-chevron-down"></i> Show All </a>' +
-                        '<a id="Btn_hideall_' + env2.VCServer + '"class="btn"><i class="icon-chevron-up"></i> Hide All </a>' +
-
+                        '<div class="btn-group" style="float:left;">'+
+                        '<a id="Btn_showall_' + env2.VCServer + '"class="btn "><i class="icon-chevron-down"></i> All</a>' +
+                        '<a id="Btn_hideall_' + env2.VCServer + '"class="btn"><i class="icon-chevron-up"></i> All</a>' +
+                        '</div> '+
                         //Create button html
                         //$('#output').append(' <button type="button" id="Btn_anno_' + env2.VCServer + '">Annotate selected events</button>');
                         ' <a class="btn btn-disabled" id="Btn_anno_' + env2.VCServer + '">Annotate selected events</button>' +
