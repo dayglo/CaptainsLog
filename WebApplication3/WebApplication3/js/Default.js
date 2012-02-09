@@ -46,15 +46,15 @@ $(document).ready(function () {
         var dayOfWeek = targetDate.getDay();
 
         switch (true) {
-            //monday                         
+            //monday                               
             case (dayOfWeek == 1):
                 targetDate.setDate(targetDate.getDate() - 3);
                 break;
-            //sunday                         
+            //sunday                               
             case (dayOfWeek == 0):
                 targetDate.setDate(targetDate.getDate() - 2);
                 break;
-            //rest of week                         
+            //rest of week                               
             default:
                 targetDate.setDate(targetDate.getDate() - 1);
                 break;
@@ -64,6 +64,7 @@ $(document).ready(function () {
     }
     if (endDate == undefined) { endDate = new Date().toString().substr(4, 20) }
 
+    var currentInvID = -1;
 
     var text = $("#InvestigationText"),
     //email = $("#email"),
@@ -90,6 +91,7 @@ $(document).ready(function () {
                 //add to db.
                 var investigation = {
                     "InvestigationEntry": {
+                        "InvestigationID": currentInvID,
                         "Text": text[0].value,
                         "Complete": false,
                         "KnownError": false,
@@ -106,11 +108,9 @@ $(document).ready(function () {
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (response) {
-                        //alert("submitted successfully. reloading table...");
-                        
-                        
-                        GetPostsIntoTable(env2.VCServer, "data_" + env2.VCServer, startDate, endDate);
-
+                        alert("submitted successfully. reloading table...");
+                        GetPostsIntoTable($(".focusedTable").attr('id'), "data_" + $(".focusedTable").attr('id'), startDate, endDate);
+                        var i = 1;
                     },
                     failure: function (msg) {
                         alert(msg);
@@ -178,9 +178,9 @@ $(document).ready(function () {
             {
                 "Name": "Heritage HBOS",
                 "Environments": [
-                    { "name": "Infra", "VCServer": "infrp0101"}//,
-                //  { "name": "Preprod", "VCServer": "infrp0100" },
-                //  { "name": "Prod", "VCServer": "infrl0100" }
+                    { "name": "Infra", "VCServer": "infrp0101" },
+                  { "name": "Preprod", "VCServer": "infrp0100" },
+                  { "name": "Prod", "VCServer": "infrl0100" }
                  ]
 
             }
@@ -220,27 +220,19 @@ $(document).ready(function () {
                         $('#output').append('<div id="data_' + env2.VCServer + '"></div><div id="comments_' + env2.VCServer + '"> &nbsp </div>');
                         GetPostsIntoTable(env2.VCServer, "data_" + env2.VCServer, startDate, endDate);
 
-//                        //add handler to the button
-//                        $("#Btn_anno_" + env2.VCServer).click(function () {
-//                            $('table').removeClass('focusedTable');
-//                            $("table#" + env2.VCServer).addClass('focusedTable');
-//                            $('#InvestigationText').Empty();
-//                            $("#dialog-form").dialog("open");
-//                        });
-
-
-
+                        //add handler to the button
+                        $("#Btn_anno_" + env2.VCServer).click(function () {
+                            $('table').removeClass('focusedTable');
+                            $("table#" + env2.VCServer).addClass('focusedTable');
+                            //$('#InvestigationText').empty();
+                            $('#dialogEditMode').each(function () { this.checked = false; });
+                            $("#dialog-form").dialog("open");
+                        });
                     }
                 );
             }
         );
-
-
-
-        // 
-
     });
-
 });
 
 
@@ -361,7 +353,7 @@ function GetPostsIntoTable(env,location,start,end) {
                                             var invEntry = response.d;
 
                                             //add the nice chevron, with the correct ID< so that when it gets clicked it can rollup the right rows
-                                            nCell.innerHTML = '<i class="icon-chevron-down " id="rowhider_' + invEntry.InvestigationID + '" style="float: left;"></i>' +
+                                            nCell.innerHTML = '<a class="btn" id="rowhider_' + invEntry.InvestigationID + '" href="#" style="float:left;"><i class="icon-chevron-down"></i></a>' +
                                                               '<div class="investigationHeaderText">' + invEntry.Text.replace(/\n/g, "<br/>") + "</div>" +
                                                               '<a class="btn" id="edit_btn_' + invEntry.InvestigationID + '" href="#" style="float:right;"><i class="icon-pencil"></i> Edit</a>';
 
@@ -374,16 +366,15 @@ function GetPostsIntoTable(env,location,start,end) {
                                                 if ($(this).hasClass('rowshidden')) {
                                                     //show
 
-                                                    $('.inv_' + invEntry.InvestigationID).show();
-                                                    $(this).removeClass('icon-chevron-right');
-                                                    $(this).addClass('icon-chevron-down');
+                                                    $('.inv_' + invEntry.InvestigationID).show("fast");
+
+                                                    $(this).html('<i class="icon-chevron-down"></i>');
                                                     $(this).removeClass('rowshidden');
                                                     $(this).parent().children('div.investigationHeaderText').removeClass('collapsed-text');
                                                 } else {
                                                     //hide
-                                                    $('.inv_' + invEntry.InvestigationID).hide();
-                                                    $(this).addClass('icon-chevron-right');
-                                                    $(this).removeClass('icon-chevron-down');
+                                                    $('.inv_' + invEntry.InvestigationID).hide("fast");
+                                                    $(this).html('<i class="icon-chevron-right"></i>');
                                                     $(this).addClass('rowshidden');
                                                     $(this).parent().children('div.investigationHeaderText').addClass('collapsed-text');
                                                 }
@@ -394,8 +385,11 @@ function GetPostsIntoTable(env,location,start,end) {
                                             $("#edit_btn_" + invEntry.InvestigationID).click(function () {
                                                 $('table').removeClass('focusedTable');
                                                 $(this).closest('table').addClass('focusedTable');
-                                                var text = $(this).parent().children('div.investigationHeaderText').contents();
+                                                var text = $(this).parent().children('div.investigationHeaderText').html();
                                                 $('#InvestigationText').html(text);
+                                                //$('#InvestigationText').html
+
+                                                $('#dialogEditMode').each(function () { this.checked = true; });
                                                 $("#dialog-form").dialog("open");
                                             });
 
@@ -438,16 +432,16 @@ function GetPostsIntoTable(env,location,start,end) {
 
                         //enable and disabled the button annotate button depending on if any cells are selected.
                         if ($("td.ui-selected").length > 0) {
-                            $("#Btn_anno_" + this.parentElement.id.substring(6)).button("enable");
+                            $("#Btn_anno_" + this.parentElement.id).button("enable");
                         } else {
-                            $("#Btn_anno_" + this.parentElement.id.substring(6)).button("disable");
+                            $("#Btn_anno_" + this.parentElement.id).button("disable");
                         }
                     }
                 });
 
                 //make group header rows unselectable
 
-                $("td.group").unselectable();  //this isnt working
+                //$("td.group").unselectable();  //this isnt working
 
             } else {
                 $('#' + location).append("<p>No Data</p>");
