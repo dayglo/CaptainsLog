@@ -30,12 +30,12 @@ body
 .group 
 {
 	background:Yellow !important;	
-	margin-top:1px;
+	border-top:1px solid gray;
 }
 
-.spinner
+.buttonrow
 {
-	
+	margin-bottom: 3px;
 	
 }
 
@@ -48,7 +48,7 @@ body
 #invForm
 {
 	height:100% !important;
-	margin 0 0 0 0 ;
+	margin: 0 0 0 0 ;
 }
 
 fieldset 
@@ -70,9 +70,9 @@ fieldset
 
 div.investigationHeaderText
 {
-	margin: 0px 3px 3px 20px;
+	margin: 0px 2px 2px 5px;
 	line-height:1.3em;
-	float:left;
+
 	
 }
 
@@ -80,13 +80,12 @@ div.investigationHeaderText:first-line
 {
 	font-weight:bold;
 	font-size:14px;
-	padding-bottom:15px;
 	
 }
 
 .collapsed-text
 {
-	height:1.3em;
+	height:2.3em;
 	overflow:hidden;
-	text-overflow:ellipsis;
+	
 }

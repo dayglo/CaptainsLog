@@ -41,15 +41,15 @@ $(document).ready(function () {
         var dayOfWeek = targetDate.getDay();
 
         switch (true) {
-            //monday                                   
+            //monday                                          
             case (dayOfWeek == 1):
                 targetDate.setDate(targetDate.getDate() - 3);
                 break;
-            //sunday                                   
+            //sunday                                          
             case (dayOfWeek == 0):
                 targetDate.setDate(targetDate.getDate() - 2);
                 break;
-            //rest of week                                   
+            //rest of week                                          
             default:
                 targetDate.setDate(targetDate.getDate() - 1);
                 break;
@@ -205,11 +205,40 @@ $(document).ready(function () {
                     function (i2, env2) {
                         //write the name of the VC
                         $('#output').append('<h3>' + env2.name + ' [VC:' + env2.VCServer + ']</h3>');
+
+                        $('#output').append('<div class="buttonrow">' +
+
+                        //show all and hide all buttons
+                        '<a id="Btn_showall_' + env2.VCServer + '"class="btn "><i class="icon-chevron-down"></i> Show All </a>' +
+                        '<a id="Btn_hideall_' + env2.VCServer + '"class="btn"><i class="icon-chevron-up"></i> Hide All </a>' +
+
                         //Create button html
-                        $('#output').append(' <button type="button" id="Btn_anno_' + env2.VCServer + '">Annotate selected events</button>');
+                        //$('#output').append(' <button type="button" id="Btn_anno_' + env2.VCServer + '">Annotate selected events</button>');
+                        ' <a class="btn btn-disabled" id="Btn_anno_' + env2.VCServer + '">Annotate selected events</button>' +
+                        '</div>');
+
+                        //add a click handler which hides the rows
+                        $('#Btn_hideall_' + env2.VCServer).click(function () {
+                            $('a.rowhider').each(function () {
+                                if (!($(this).hasClass('rowshidden'))) {
+                                    $(this).trigger('click');
+                                }
+                            });
+                        });
+
+                        //add a click handler which unhides the rows
+                        $('#Btn_showall_' + env2.VCServer).click(function () {
+                            $('a.rowhider').each(function () {
+                                if ($(this).hasClass('rowshidden')) {
+                                    $(this).trigger('click');
+                                }
+                            });
+                        });
+
+
                         //Initialise jquery button class magickery 
-                        $("#Btn_anno_" + env2.VCServer).button();
-                        $("#Btn_anno_" + env2.VCServer).button("disable");
+                        //$("#Btn_anno_" + env2.VCServer).button();
+                        //$("#Btn_anno_" + env2.VCServer).button("disable");
 
                         //render the table
                         $('#output').append('<div id="data_' + env2.VCServer + '"></div><div id="comments_' + env2.VCServer + '"> &nbsp </div>');
@@ -308,7 +337,9 @@ function GetPostsIntoTable(env,location,start,end) {
                     "bInfo": false,
                     //this bit groups the rows according to the investigation id.
                     "fnDrawCallback": function (oSettings) {
+
                         //alert('DataTables has redrawn the table');
+
                         if (oSettings.aiDisplay.length == 0) {
                             return;
                         }
@@ -348,28 +379,25 @@ function GetPostsIntoTable(env,location,start,end) {
                                             var invEntry = response.d;
 
                                             //add the nice chevron, with the correct ID< so that when it gets clicked it can rollup the right rows
-                                            nCell.innerHTML = '<a class="btn" id="rowhider_' + invEntry.InvestigationID + '" href="#" style="float:left;"><i class="icon-chevron-down"></i></a>' +
-                                                              '<div class="investigationHeaderText">' + invEntry.Text.replace(/\n/g, "<br/>") + "</div>" +
-                                                              '<a class="btn" id="edit_btn_' + invEntry.InvestigationID + '" href="#" style="float:right;"><i class="icon-pencil"></i> Edit</a>';
+                                            nCell.innerHTML = '<a class="btn rowhider" id="rowhider_' + invEntry.InvestigationID + '"  style="float:left;"><i class="icon-chevron-up"></i></a>' +
+                                                               '<a class="btn" id="edit_btn_' + invEntry.InvestigationID + '"  style="float:left;margin-right: 6px; "><i class="icon-pencil"></i></a>' +
+                                                              
+                                                              '<div class="investigationHeaderText">' + invEntry.Text.replace(/\n/g, "<br/>") + "</div>";
 
-
-                                            //hide, because they should be hid initially. actually, nah
-                                            //$('.inv_' + invEntry.InvestigationID).hide();
 
                                             //add a click handler which hides and unhides the rows
                                             $("#rowhider_" + invEntry.InvestigationID).click(function () {
                                                 if ($(this).hasClass('rowshidden')) {
                                                     //show
 
-                                                    $('.inv_' + invEntry.InvestigationID).show("fast");
-
-                                                    $(this).html('<i class="icon-chevron-down"></i>');
+                                                    $('.inv_' + invEntry.InvestigationID).show('slow');
+                                                    $(this).html('<i class="icon-chevron-up"></i>');
                                                     $(this).removeClass('rowshidden');
                                                     $(this).parent().children('div.investigationHeaderText').removeClass('collapsed-text');
                                                 } else {
                                                     //hide
                                                     $('.inv_' + invEntry.InvestigationID).hide("fast");
-                                                    $(this).html('<i class="icon-chevron-right"></i>');
+                                                    $(this).html('<i class="icon-chevron-down"></i>');
                                                     $(this).addClass('rowshidden');
                                                     $(this).parent().children('div.investigationHeaderText').addClass('collapsed-text');
                                                 }
