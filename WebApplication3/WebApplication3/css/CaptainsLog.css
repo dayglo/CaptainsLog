@@ -41,18 +41,19 @@ body
 
 #InvestigationText
 {
-	width:100% !important;
-	height:100% !important;
+    height: 83% !important;
+    width: 98% !important;
 }
 
 #invForm
 {
 	height:100% !important;
+	margin 0 0 0 0 ;
 }
 
 fieldset 
 {
-	height:100% !important;
+	height:86% !important;
 }
 
 #UserName
