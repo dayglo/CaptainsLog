@@ -170,25 +170,35 @@ namespace CaptainsLog
         {
             using (SqlConnection myConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["Live"].ConnectionString))
             {
-                //string SQL = "SELECT [Time], [Event],[Occurrences],  [Host], [Cluster],[ServerID],[EntryID],[investigationID],[Environment] FROM [EntryView] " +
-                //"WHERE ([Environment] = '" + LogRequest.environment + "') " +
-                //"AND (Time BETWEEN '" + LogRequest.startDate + "' AND '" + LogRequest.endDate + "') " +
-                //"ORDER BY investigationID,Time ";
 
-                string SQL = "BEGIN TRANSACTION UpdateEntriesAndInvestigations " +
-                             "INSERT INTO [captains_log].[dbo].[Investigations] ([Text], [SupportRef], [Complete],[KnownError]) " +
-                             "VALUES( @Text, @SupportRef, @Complete, @KnownError) " +
-                            
-                             "UPDATE [captains_log].[dbo].[entries] " +
-                             "SET investigationID = @@IDENTITY " +
-                             "WHERE entryID IN (@entryIDs) " +
-                             "COMMIT TRANSACTION UpdateEntriesAndInvestigations";
+                string SQL = "";
+                if (InvestigationEntry.InvestigationID == -1)
+                {
+
+                    SQL =   "BEGIN TRANSACTION UpdateEntriesAndInvestigations " +
+                            "INSERT INTO [captains_log].[dbo].[Investigations] ([Text], [SupportRef], [Complete],[KnownError]) " +
+                            "VALUES( @Text, @SupportRef, @Complete, @KnownError) " +
+
+                            "UPDATE [captains_log].[dbo].[entries] " +
+                            "SET investigationID = @@IDENTITY " +
+                            "WHERE entryID IN (@entryIDs) " +
+                            "COMMIT TRANSACTION UpdateEntriesAndInvestigations";
+                }
+                else
+                {
+                    SQL =   "BEGIN TRANSACTION UpdateEntriesAndInvestigations " +
+                            "UPDATE [captains_log].[dbo].[Investigations] " +
+                            "SET Text = @Text " +
+                            "WHERE investigationID = @invID " +
+                            "COMMIT TRANSACTION UpdateEntriesAndInvestigations";
+                }
                 
                 SqlCommand myCommand = new SqlCommand(SQL, myConnection);
                 myCommand.Parameters.AddWithValue("@Text", InvestigationEntry.Text);
                 myCommand.Parameters.AddWithValue("@SupportRef", InvestigationEntry.SupportRef);
                 myCommand.Parameters.AddWithValue("@Complete", InvestigationEntry.Complete);
                 myCommand.Parameters.AddWithValue("@KnownError", InvestigationEntry.KnownError);
+                myCommand.Parameters.AddWithValue("@invID", InvestigationEntry.InvestigationID);
                 myCommand.CommandText = myCommand.CommandText.Replace(
                     "@entryIDs",
                     String.Join(",",InvestigationEntry.EntryIDs.Select(b => b.ToString()))

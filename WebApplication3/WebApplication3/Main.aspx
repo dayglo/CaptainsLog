@@ -44,7 +44,6 @@
 		    
             
             <textarea rows="1" cols="1" name="text" id="InvestigationText" class="investigationTextArea text ui-widget-content ui-corner-all">test</textarea>
-            <input type="checkbox" id="dialogEditMode" >checkbox<br>
 		    <!--<label for="KnownError">Known Error</label>
 		    <input type="text" name="KnownError" id="KnownError" value="" class="text ui-widget-content ui-corner-all" />-->
 	    </fieldset>

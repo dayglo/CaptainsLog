@@ -1,4 +1,4 @@
-﻿
+﻿var currentInvID = -1;
 
 function getUrlVars() {
     var vars = [], hash;
@@ -30,11 +30,6 @@ function addSpinner(id) {
 }
 
 
-
-//var startDate = new Date();
-//var endDate = new Date();
-
-
 $(document).ready(function () {
 
     //If there is no startdate or enddate, set them to be the period since the last working day
@@ -46,15 +41,15 @@ $(document).ready(function () {
         var dayOfWeek = targetDate.getDay();
 
         switch (true) {
-            //monday                               
+            //monday                                   
             case (dayOfWeek == 1):
                 targetDate.setDate(targetDate.getDate() - 3);
                 break;
-            //sunday                               
+            //sunday                                   
             case (dayOfWeek == 0):
                 targetDate.setDate(targetDate.getDate() - 2);
                 break;
-            //rest of week                               
+            //rest of week                                   
             default:
                 targetDate.setDate(targetDate.getDate() - 1);
                 break;
@@ -64,7 +59,7 @@ $(document).ready(function () {
     }
     if (endDate == undefined) { endDate = new Date().toString().substr(4, 20) }
 
-    var currentInvID = -1;
+
 
     var text = $("#InvestigationText"),
     //email = $("#email"),
@@ -225,7 +220,7 @@ $(document).ready(function () {
                             $('table').removeClass('focusedTable');
                             $("table#" + env2.VCServer).addClass('focusedTable');
                             //$('#InvestigationText').empty();
-                            $('#dialogEditMode').each(function () { this.checked = false; });
+                            currentInvID = -1;
                             $("#dialog-form").dialog("open");
                         });
                     }
@@ -389,7 +384,7 @@ function GetPostsIntoTable(env,location,start,end) {
                                                 $('#InvestigationText').html(text);
                                                 //$('#InvestigationText').html
 
-                                                $('#dialogEditMode').each(function () { this.checked = true; });
+                                                currentInvID = invEntry.InvestigationID;
                                                 $("#dialog-form").dialog("open");
                                             });
 
