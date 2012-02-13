@@ -28,8 +28,8 @@
     
     <form id="form2" runat="server">
  
-    <input type="button" id="Button1" value="Get Entries"/>
-    <asp:Label ID="UserName" runat="server" Text="username"></asp:Label> &nbsp;
+    <!--<input type="button" id="Button1" value="Get Entries"/>
+    <asp:Label ID="UserName" runat="server" Text="username"></asp:Label> &nbsp; -->
     <div id="output"></div>
  
     </form>

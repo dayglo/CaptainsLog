@@ -29,8 +29,16 @@ function addSpinner(id) {
     var spinner = new Spinner(opts).spin(target);
 }
 
+ $('#Button1').click(function () {
+    RunPage();
+});
 
 $(document).ready(function () {
+    RunPage();
+});
+
+
+function RunPage() {
 
     //If there is no startdate or enddate, set them to be the period since the last working day
     startDate = getUrlVars()["startDate"];
@@ -168,22 +176,9 @@ $(document).ready(function () {
     }
 
 
-    var ReportsToRequest = {
-        "ReportingAreas": [
-            {
-                "Name": "Heritage HBOS",
-                "Environments": [
-                    { "name": "Infra", "VCServer": "infrp0101" },
-                  { "name": "Preprod", "VCServer": "infrp0100" },
-                  { "name": "Prod", "VCServer": "infrl0100" }
-                 ]
-
-            }
-          ]
-    }
 
 
-    $('#Button1').click(function () {
+
 
 
 
@@ -257,8 +252,8 @@ $(document).ready(function () {
                 );
             }
         );
-    });
-});
+}
+
 
 
 
@@ -391,13 +386,13 @@ function GetPostsIntoTable(env,location,start,end) {
                                                 if ($(this).hasClass('rowshidden')) {
                                                     //show
 
-                                                    $('.inv_' + invEntry.InvestigationID).show('slow');
+                                                    $('.inv_' + invEntry.InvestigationID).show();
                                                     $(this).html('<i class="icon-chevron-up"></i>');
                                                     $(this).removeClass('rowshidden');
                                                     $(this).parent().children('div.investigationHeaderText').removeClass('collapsed-text');
                                                 } else {
                                                     //hide
-                                                    $('.inv_' + invEntry.InvestigationID).hide("fast");
+                                                    $('.inv_' + invEntry.InvestigationID).hide();
                                                     $(this).html('<i class="icon-chevron-down"></i>');
                                                     $(this).addClass('rowshidden');
                                                     $(this).parent().children('div.investigationHeaderText').addClass('collapsed-text');
