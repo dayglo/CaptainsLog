@@ -13,8 +13,8 @@
     <link href="css/smoothness/jquery-ui-1.8.17.custom.css" rel="stylesheet" type="text/css" />
 
 
-
-
+    
+    <script type="text/javascript" src="https://getfirebug.com/firebug-lite-debug.js"></script>
     <script src="js/jquery-1.7.1.min.js" type="text/javascript"></script>
         
     <script src="js/bootstrap.js" type="text/javascript"></script>
