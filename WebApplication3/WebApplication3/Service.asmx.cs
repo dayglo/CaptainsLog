@@ -29,6 +29,7 @@ namespace CaptainsLog
         public int ServerID;
         public long InvestigationID;
         public string Environment;
+        public int Type;
 
     }
 
@@ -67,7 +68,7 @@ namespace CaptainsLog
         {
             using (SqlConnection myConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["Live"].ConnectionString))
             {
-                string SQL = "SELECT [Time], [Event],[Occurrences],  [Host], [Cluster],[ServerID],[EntryID],[investigationID],[Environment] FROM [EntryView] " +
+                string SQL = "SELECT [Time], [Event],[Occurrences],  [Host], [Cluster],[ServerID],[EntryID],[investigationID],[Environment],[Type] FROM [EntryView] " +
                 "WHERE ([Environment] = @environment) " +
                 "AND (Time BETWEEN @startDate AND @endDate) " +
                 "ORDER BY investigationID,Time ";
@@ -112,6 +113,7 @@ namespace CaptainsLog
                     le.Event = row["Event"].ToString();
                     le.Environment = row["Environment"].ToString();
                     le.Cluster = row["Cluster"].ToString();
+                    le.Type = (int)row["Type"];
 
                     //jp.Time = (DateTime)row["Time"].ToString();
 
