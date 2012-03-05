@@ -3,6 +3,41 @@ Date.prototype.format = function (format) { var returnStr = ''; var replace = Da
 
 var currentInvID = -1;
 
+jQuery.fn.shiftSelect = function () {
+    var rows = this;
+    var lastSelected;
+    jQuery(this).click(function (event) {
+
+        if (!lastSelected) {
+            lastSelected = this;
+            return;
+        }
+
+        if (event.shiftKey) {
+            var selIndex = rows.index(this);
+            var lastIndex = rows.index(lastSelected);
+            /*
+            * if you find the "select/unselect" behavior unseemly,
+            * remove this assignment and replace 'checkValue'
+            * with 'true' below.
+            */
+            var checkValue = lastSelected.checked;
+            if (selIndex == lastIndex) {
+                return true;
+            }
+
+            var end = Math.max(selIndex, lastIndex);
+            var start = Math.min(selIndex, lastIndex);
+            for (i = start; i <= end; i++) {
+                rows[i].checked = checkValue;
+            }
+        }
+        lastSelected = this;
+    });
+}
+
+
+
 function getUrlVars() {
     var vars = [], hash;
     var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
@@ -137,7 +172,18 @@ function RunPage() {
 
     //make tr selectable
 
-
+    var ReportsToRequest = {
+        "ReportingAreas": [
+            {
+                "Name": "Heritage HBOS",
+                "Environments": [
+                    { "name": "Infra", "VCServer": "infrp0101" },
+                    { "name": "Preprod", "VCServer": "infrp0100" },
+                    { "name": "Prod", "VCServer": "infrl0100" }
+                ]
+            }
+        ]
+    }
 
     var ReportsToRequest = {
         "ReportingAreas": [
@@ -303,7 +349,8 @@ function GetPostsIntoTable(env,location,start,end) {
                 //create the table heading row
                 $('table#' + env).append('<thead><tr><!--<th colspan="6" id="' + env + '">' + env + '</th>--></tr><tr>' +
                 '   <td>InvestigationID</td>' +
-                 '  <td>EntryID</td>' +
+                '  <td>Type</td>' +
+                '  <td>EntryID</td>' +
                 '   <td>Time</td>' +
                 '   <td>Event</td>' +
                 '   <td>#</td>' +
@@ -315,7 +362,7 @@ function GetPostsIntoTable(env,location,start,end) {
                 '</tr></thead><tbody>');
 
                 //render the data
-
+                var typeIconString = ""
 
                 $.each(les, function (index, le) {
                     var rowTag = '<tr class="data">';
@@ -326,14 +373,20 @@ function GetPostsIntoTable(env,location,start,end) {
 
                     $('table#' + env).append(rowTag +
                     '   <td>' + le.InvestigationID + '</td>' +
+                    '   <td class=typeIcon>' + le.Type + '</td>' +
                     '   <td class="cell_EntryID">' + le.EntryID + '</td>' +
-                    '   <td class-"timecol">' + le.Time + '</td>' +
-                    '   <td>' + le.Event + '</td>' +
+                    '   <td class="timecol">' + le.Time + '</td>' +
+                    '   <td class="selectable">' + le.Event + '</td>' +
                     '   <td>' + le.Occurrences + '</td>' +
                     '   <td>' + le.Host + '</td>' +
                     '   <td>' + le.Cluster + '</td></tr>'
                     );
                 });
+
+                $("td.typeIcon:contains('1')").html('<i class="icon-list-alt"></i>');
+                $("td.typeIcon:contains('2')").html('<i class="icon-warning-sign"></i>');
+                $("td.typeIcon:contains('3')").html('<i class="icon-adjust"></i>');
+
 
                 //close the table body
                 $('table#' + env).append("</tbody>");
@@ -389,7 +442,7 @@ function GetPostsIntoTable(env,location,start,end) {
                                             //add the nice chevron, with the correct ID< so that when it gets clicked it can rollup the right rows
                                             nCell.innerHTML = '<a class="btn rowhider" id="rowhider_' + invEntry.InvestigationID + '"  style="float:left;"><i class="icon-chevron-up"></i></a>' +
                                                                '<a class="btn" id="edit_btn_' + invEntry.InvestigationID + '"  style="float:left;margin-right: 6px; "><i class="icon-pencil"></i></a>' +
-                                                              
+
                                                               '<div class="investigationHeaderText">' + invEntry.Text.replace(/\n/g, "<br/>") + "</div>";
 
 
@@ -397,7 +450,6 @@ function GetPostsIntoTable(env,location,start,end) {
                                             $("#rowhider_" + invEntry.InvestigationID).click(function () {
                                                 if ($(this).hasClass('rowshidden')) {
                                                     //show
-
                                                     $('.inv_' + invEntry.InvestigationID).show();
                                                     $(this).html('<i class="icon-chevron-up"></i>');
                                                     $(this).removeClass('rowshidden');
@@ -449,6 +501,10 @@ function GetPostsIntoTable(env,location,start,end) {
 
                 //make rows selectable
 
+
+
+
+
                 $("tbody").selectable({
                     filter: 'td',
                     selected: function (event, ui) {
@@ -469,6 +525,7 @@ function GetPostsIntoTable(env,location,start,end) {
                         }
                     }
                 });
+
 
                 //make group header rows unselectable
 
