@@ -14,13 +14,14 @@
 
 
     
-    <script type="text/javascript" src="https://getfirebug.com/firebug-lite-debug.js"></script>
+
     <script src="js/jquery-1.7.1.min.js" type="text/javascript"></script>
         
     <script src="js/bootstrap.js" type="text/javascript"></script>
     <script src="js/json2.js" type="text/javascript"></script>
     <script src="js/jquery-ui-1.8.17.custom.min.js" type="text/javascript"></script>
     <script type="text/javascript" charset="utf-8" src="/DataTables/media/js/jquery.dataTables.js"></script>
+    <script src="js/jquery.pfSelect.js" type="text/javascript"></script>
     <script src="js/spin.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="js/Default.js"> </script>
 </head>
@@ -31,7 +32,7 @@
     <!--<input type="button" id="Button1" value="Get Entries"/>
     <asp:Label ID="UserName" runat="server" Text="username"></asp:Label> &nbsp; -->
     <div id="output"></div>
- 
+           Loading...
     </form>
 
 
