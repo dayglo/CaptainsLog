@@ -45,6 +45,7 @@
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Routing" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
@@ -53,6 +54,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="environment.aspx" />
     <Content Include="css\bootstrap.css" />
     <Content Include="css\bootstrap.min.css" />
     <Content Include="css\ellipsis-xbl.xml" />
@@ -460,8 +462,10 @@
     <Content Include="js\date.js" />
     <Content Include="js\jquery-1.7.1.min.js" />
     <Content Include="js\jquery-ui-1.8.17.custom.min.js" />
+    <Content Include="js\jquery.blockUI.js" />
     <Content Include="js\jquery.dataTables.js" />
     <Content Include="js\jquery.fmatter.js" />
+    <Content Include="js\jquery.pfSelect.js" />
     <Content Include="js\spin.min.js" />
     <Content Include="js\json2.js" />
     <Content Include="js\JsonXml.js" />
@@ -495,6 +499,13 @@
     <Content Include="WebService1.asmx" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="environment.aspx.cs">
+      <DependentUpon>environment.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="environment.aspx.designer.cs">
+      <DependentUpon>environment.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -550,7 +561,7 @@
         <WebProjectProperties>
           <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>3836</DevelopmentServerPort>
+          <DevelopmentServerPort>3685</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>
           </IISUrl>
