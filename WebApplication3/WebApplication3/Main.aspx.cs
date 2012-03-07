@@ -12,10 +12,10 @@ namespace WebApplication3
         protected void Page_Load(object sender, EventArgs e)
         {
             
-            if (User.Identity.IsAuthenticated)
-                UserName.Text = User.Identity.Name;
-            else
-                UserName.Text = "No user identity available.";
+           // if (User.Identity.IsAuthenticated)
+           //     UserName.Text = User.Identity.Name;
+           // else
+           //     UserName.Text = "No user identity available.";
   
         }
     }

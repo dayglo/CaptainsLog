@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Main.aspx.cs" Inherits="WebApplication3.WebForm1" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Main.aspx.cs" Inherits="WebApplication3.WebForm1" EnableViewState="false" EnableSessionState="ReadOnly"%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,15 +15,7 @@
 
     
 
-    <script src="js/jquery-1.7.1.min.js" type="text/javascript"></script>
-        
-    <script src="js/bootstrap.js" type="text/javascript"></script>
-    <script src="js/json2.js" type="text/javascript"></script>
-    <script src="js/jquery-ui-1.8.17.custom.min.js" type="text/javascript"></script>
-    <script type="text/javascript" charset="utf-8" src="/DataTables/media/js/jquery.dataTables.js"></script>
-    <script src="js/jquery.pfSelect.js" type="text/javascript"></script>
-    <script src="js/spin.min.js" type="text/javascript"></script>
-    <script type="text/javascript" src="js/Default.js"> </script>
+
 </head>
 <body>
     
@@ -32,25 +24,35 @@
     <!--<input type="button" id="Button1" value="Get Entries"/>
     <asp:Label ID="UserName" runat="server" Text="username"></asp:Label> &nbsp; -->
     <div id="output"></div>
-           Loading...
+         
     </form>
 
 
     <div id="dialog-form" title="Add Investigation Details">
-	    <p class="validateTips">Enter your notes regarding the selected log events</p>
+	    <p  class="validateTips">Enter your notes regarding the selected log events</p>
 
 	    <form id="invForm">
 	    <fieldset>
 		    <label for="text">Text</label>
 		    
             
-            <textarea rows="1" cols="1" name="text" id="InvestigationText" class="investigationTextArea text ui-widget-content ui-corner-all">test</textarea>
+            <textarea rows="1" cols="1" name="text" id="InvestigationText" class="investigationTextArea text ui-widget-content ui-corner-all"></textarea>
 		    <!--<label for="KnownError">Known Error</label>
 		    <input type="text" name="KnownError" id="KnownError" value="" class="text ui-widget-content ui-corner-all" />-->
 	    </fieldset>
 	    </form>
     </div>
 
-
 </body>
+
+    <script src="js/jquery-1.7.1.min.js" type="text/javascript"></script>
+    <script src="js/jquery.blockUI.js" type="text/javascript"></script>    
+    <script src="js/bootstrap.js" type="text/javascript"></script>
+    <script src="js/json2.js" type="text/javascript"></script>
+    <script src="js/jquery-ui-1.8.17.custom.min.js" type="text/javascript"></script>
+    <script type="text/javascript" charset="utf-8" src="/DataTables/media/js/jquery.dataTables.js"></script>
+    <script src="js/jquery.pfSelect.js" type="text/javascript"></script>
+    <script src="js/spin.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/Default.js"> </script>
+
 </html>
