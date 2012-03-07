@@ -38,6 +38,7 @@ namespace CaptainsLog
         public string startDate;
         public string endDate;
         public string environment;
+        public bool reportOnly;
     }
 
 
@@ -49,6 +50,7 @@ namespace CaptainsLog
         public bool Complete;
         public bool KnownError;
         public List<int> EntryIDs;
+        public string Modified;
     }
 
 /// <summary>
@@ -68,11 +70,22 @@ namespace CaptainsLog
         {
             using (SqlConnection myConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["Live"].ConnectionString))
             {
-                string SQL = "SELECT [Time], [Event],[Occurrences],  [Host], [Cluster],[ServerID],[EntryID],[investigationID],[Environment],[Type] FROM [EntryView] " +
-                "WHERE ([Environment] = @environment) " +
-                "AND (Time BETWEEN @startDate AND @endDate) " +
-                "ORDER BY investigationID,Time ";
-
+                string SQL = "";
+                if (LogRequest.reportOnly)
+                {
+                    SQL = "SELECT [Time], [Event],[Occurrences],  [Host], [Cluster],[ServerID],[EntryID],[investigationID],[Environment],[Type] FROM [EntryView] " +
+                    "WHERE ([Environment] = @environment) " +
+                    "AND (Time BETWEEN @startDate AND @endDate) " +
+                    "AND (InvestigationID IS NOT NULL) " +
+                    "ORDER BY investigationID,Time ";
+                }
+                else
+                {
+                    SQL = "SELECT [Time], [Event],[Occurrences],  [Host], [Cluster],[ServerID],[EntryID],[investigationID],[Environment],[Type] FROM [EntryView] " +
+                    "WHERE ([Environment] = @environment) " +
+                    "AND (Time BETWEEN @startDate AND @endDate) " +
+                    "ORDER BY InvestigationID,Time ";
+                }
                 SqlCommand myCommand = new SqlCommand(SQL, myConnection);
                 
                 myCommand.Parameters.AddWithValue("@environment",LogRequest.environment);
@@ -126,18 +139,26 @@ namespace CaptainsLog
             }
         }
 
+        [WebMethod]
+        public List<InvestigationEntry> GetInvestigationEntries(List<int> ids)
+        {
+            List<InvestigationEntry> invEntries = new List<InvestigationEntry>();
+            foreach (int id in ids) {
+                InvestigationEntry ie = new InvestigationEntry();
+                ie = GetInvestigation(id);
+                invEntries.Add(ie);
+            }
+
+            return invEntries;
+        }
+
 
         [WebMethod]
         public InvestigationEntry GetInvestigation(int id)
         {
             using (SqlConnection myConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["Live"].ConnectionString))
             {
-                //string SQL = "SELECT [Time], [Event],[Occurrences],  [Host], [Cluster],[ServerID],[EntryID],[investigationID],[Environment] FROM [EntryView] " +
-                //"WHERE ([Environment] = '" + LogRequest.environment + "') " +
-                //"AND (Time BETWEEN '" + LogRequest.startDate + "' AND '" + LogRequest.endDate + "') " +
-                //"ORDER BY investigationID,Time ";
-
-                string SQL = "SELECT [investigationID], [Text], [SupportRef], [Complete],[KnownError] " +
+                string SQL = "SELECT [investigationID], [Text], [Modified]" +
                              "FROM [captains_log].[dbo].[Investigations] " +
                              "WHERE investigationID = @id";
 
@@ -158,9 +179,10 @@ namespace CaptainsLog
                 InvestigationEntry entry = new InvestigationEntry();
                 entry.InvestigationID = (long)DSet.Tables[0].Rows[0]["investigationID"];
                 entry.Text = DSet.Tables[0].Rows[0]["Text"].ToString();
-                entry.SupportRef = DSet.Tables[0].Rows[0]["SupportRef"].ToString();
-                entry.Complete = (bool)DSet.Tables[0].Rows[0]["Complete"];
-                entry.KnownError = (bool)DSet.Tables[0].Rows[0]["KnownError"];
+                entry.Modified = DSet.Tables[0].Rows[0]["Modified"].ToString();
+                //entry.SupportRef = DSet.Tables[0].Rows[0]["SupportRef"].ToString();
+                //entry.Complete = (bool)DSet.Tables[0].Rows[0]["Complete"];
+                //entry.KnownError = (bool)DSet.Tables[0].Rows[0]["KnownError"];
 
                 return entry;
 
@@ -178,8 +200,10 @@ namespace CaptainsLog
                 {
 
                     SQL =   "BEGIN TRANSACTION UpdateEntriesAndInvestigations " +
-                            "INSERT INTO [captains_log].[dbo].[Investigations] ([Text], [SupportRef], [Complete],[KnownError]) " +
-                            "VALUES( @Text, @SupportRef, @Complete, @KnownError) " +
+                            //"INSERT INTO [captains_log].[dbo].[Investigations] ([Text], [SupportRef], [Complete],[KnownError],[Modified]) " +
+                            "INSERT INTO [captains_log].[dbo].[Investigations] ([Text],[Modified]) " +
+                            //"VALUES( @Text, @SupportRef, @Complete, @KnownError, @Modified) " +
+                            "VALUES( @Text, @Modified) " +
 
                             "UPDATE [captains_log].[dbo].[entries] " +
                             "SET investigationID = @@IDENTITY " +
@@ -197,10 +221,11 @@ namespace CaptainsLog
                 
                 SqlCommand myCommand = new SqlCommand(SQL, myConnection);
                 myCommand.Parameters.AddWithValue("@Text", InvestigationEntry.Text);
-                myCommand.Parameters.AddWithValue("@SupportRef", InvestigationEntry.SupportRef);
-                myCommand.Parameters.AddWithValue("@Complete", InvestigationEntry.Complete);
-                myCommand.Parameters.AddWithValue("@KnownError", InvestigationEntry.KnownError);
+               // myCommand.Parameters.AddWithValue("@SupportRef", InvestigationEntry.SupportRef);
+               // myCommand.Parameters.AddWithValue("@Complete", InvestigationEntry.Complete);
+               // myCommand.Parameters.AddWithValue("@KnownError", InvestigationEntry.KnownError);
                 myCommand.Parameters.AddWithValue("@invID", InvestigationEntry.InvestigationID);
+                myCommand.Parameters.AddWithValue("@Modified", InvestigationEntry.Modified);
                 myCommand.CommandText = myCommand.CommandText.Replace(
                     "@entryIDs",
                     String.Join(",",InvestigationEntry.EntryIDs.Select(b => b.ToString()))
