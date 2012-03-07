@@ -3,39 +3,14 @@ Date.prototype.format = function (format) { var returnStr = ''; var replace = Da
 
 var currentInvID = -1;
 
-jQuery.fn.shiftSelect = function () {
-    var rows = this;
-    var lastSelected;
-    jQuery(this).click(function (event) {
-
-        if (!lastSelected) {
-            lastSelected = this;
-            return;
-        }
-
-        if (event.shiftKey) {
-            var selIndex = rows.index(this);
-            var lastIndex = rows.index(lastSelected);
-            /*
-            * if you find the "select/unselect" behavior unseemly,
-            * remove this assignment and replace 'checkValue'
-            * with 'true' below.
-            */
-            var checkValue = lastSelected.checked;
-            if (selIndex == lastIndex) {
-                return true;
-            }
-
-            var end = Math.max(selIndex, lastIndex);
-            var start = Math.min(selIndex, lastIndex);
-            for (i = start; i <= end; i++) {
-                rows[i].checked = checkValue;
-            }
-        }
-        lastSelected = this;
-    });
-}
-
+$.extend($.expr[':'], {
+    inView: function (a) {
+        var st = (document.documentElement.scrollTop || document.body.scrollTop),
+            ot = $(a).offset().top,
+            wh = (window.innerHeight && window.innerHeight < $(window).height()) ? window.innerHeight : $(window).height();
+        return ot > st && ($(a).height() + ot) < (st + wh);
+    }
+});
 
 
 function getUrlVars() {
@@ -67,20 +42,33 @@ function addSpinner(id) {
     var spinner = new Spinner(opts).spin(target);
 }
 
- $('#Button1').click(function () {
-    RunPage();
-});
 
 $(document).ready(function () {
+
+
     RunPage();
+
+    //filter output 
+
+    if ($.browser.msie && $.browser.version.substr(0, 1) < 7) {
+        $('.btn').hide();
+    }
+
+
+
+
 });
 
+$(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
 
 function RunPage() {
 
+    //collect URL parameters
     //If there is no startdate or enddate, set them to be the period since the last working day
     startDate = getUrlVars()["startDate"];
     endDate = getUrlVars()["endDate"];
+    reportOnly = getUrlVars()["reportOnly"];
+
     if (startDate == undefined) {
 
         var targetDate = new Date();
@@ -105,14 +93,21 @@ function RunPage() {
     }
     if (endDate == undefined) { endDate = new Date().toString() }
 
+    // Decide whether or not to hide all buttons (ie or report mode)
+    var hideallbuttons = 0
+
+    if (($.browser.msie && $.browser.version.substr(0, 1) < 7) || (reportOnly)) {
+        hideallbuttons = 1;
+    }
 
 
+    // get a reference to the dialog box txt field
     var text = $("#InvestigationText"),
     //email = $("#email"),
     //password = $("#password"),
 		allFields = $([]).add(text);  //.add(email).add(password),
 
-
+    //set up the dialog box
     $("#dialog-form").dialog({
         autoOpen: false,
         height: 300,
@@ -123,22 +118,23 @@ function RunPage() {
                 var bValid = true;
                 allFields.removeClass("ui-state-error");
 
-                //get all entry IDs from the selected rows in the focused table.
+                //get all entry IDs from the selected rows in the focused table, so we can link the investigation to all the correct entries
                 var entries = [];
                 $(".focusedTable td").filter(".ui-selected.cell_EntryID").each(function (i, td) {
                     entries.push(td.innerHTML);
                 });
 
-                //add to db.
+                //add investigation to db.
                 var investigation = {
                     "InvestigationEntry": {
                         "InvestigationID": currentInvID,
                         "Text": text[0].value,
-                        "Complete": false,
-                        "KnownError": false,
-                        "SupportRef": "test00001",
+                        //"Complete": false,
+                        //"KnownError": false,
+                        //"SupportRef": "test00001",
                         //for each selected table 
-                        "EntryIDs": entries
+                        "EntryIDs": entries,
+                        "Modified": new Date().format('M j Y H:i:s')
                     }
                 }
 
@@ -149,9 +145,10 @@ function RunPage() {
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (response) {
-                        alert("submitted successfully. reloading table...");
-                        GetPostsIntoTable($(".focusedTable").attr('id'), "data_" + $(".focusedTable").attr('id'), startDate, endDate);
-                        var i = 1;
+                       
+                       //if the investigation was successfully sent to the server, reload the individual table.
+                       GetPostsIntoTable($(".focusedTable").attr('id'), "data_" + $(".focusedTable").attr('id'), startDate, endDate, reportOnly);
+                    
                     },
                     failure: function (msg) {
                         alert(msg);
@@ -170,7 +167,7 @@ function RunPage() {
         }
     });
 
-    //make tr selectable
+    //Set up the JSON which contains the environments to query
 
     var ReportsToRequest = {
         "ReportingAreas": [
@@ -234,69 +231,56 @@ function RunPage() {
         // Populate everything
         //====================
 
+        var output = $('#output');
+
 
         $('#output').empty();
         $('#output').append('<h1>VMware Health Check</h2>');
+        //$('#output').append('<textarea style="width:95%;" rows="3" cols="1" name="text" id="SummaryTextArea" class="SummaryTextArea text ui-widget-content ui-corner-all">Enter today`s summary here...</textarea>');
+
         $.each(
         //For each reporting area
             ReportsToRequest.ReportingAreas,
             function (i, area) {
+
+
                 //...write the area name
-                $('#output').append('<h2>' + area.Name + '</h2>');
+                output.append('<h2>' + area.Name + '</h2>');
+
                 $.each(
                 //for each environment in the reporting area
                     area.Environments,
                     function (i2, env2) {
+
+                        var htmlRenderOutput = ""
+
                         //write the name of the VC
-                        $('#output').append('<h3>' + env2.name + ' [VC:' + env2.VCServer + ']</h3>');
+                        htmlRenderOutput += '<h3>' + env2.name + ' [VC:' + env2.VCServer + ']</h3>'
 
-                        $('#output').append('<div class="buttonrow">' +
+                        if (!hideallbuttons) {
 
-                        //show all and hide all buttons
-                        '<div class="btn-group" style="float:left;">'+
-                        '<a id="Btn_showall_' + env2.VCServer + '"class="btn "><i class="icon-chevron-down"></i> All</a>' +
-                        '<a id="Btn_hideall_' + env2.VCServer + '"class="btn"><i class="icon-chevron-up"></i> All</a>' +
-                        '</div> '+
-                        //Create button html
-                        //$('#output').append(' <button type="button" id="Btn_anno_' + env2.VCServer + '">Annotate selected events</button>');
-                        ' <a class="btn btn-disabled" id="Btn_anno_' + env2.VCServer + '">Annotate selected events</button>' +
-                        '</div>');
+                            htmlRenderOutput +=
 
-                        //add a click handler which hides the rows
-                        $('#Btn_hideall_' + env2.VCServer).click(function () {
-                            $('a.rowhider').each(function () {
-                                if (!($(this).hasClass('rowshidden'))) {
-                                    $(this).trigger('click');
-                                }
-                            });
-                        });
+                            '<div class="buttonrow">' +
+                            //show all and hide all buttons
+                                '<div class="btn-group" style="float:left;">' +
+                                    '<a id="Btn_showall_' + env2.VCServer + '"class="btn"><i class="icon-chevron-down"></i> All</a>' +
+                                    '<a id="Btn_hideall_' + env2.VCServer + '"class="btn"><i class="icon-chevron-up"></i> All</a>' +
+                                '</div> ' +
+                                ' <a class="btn btn-disabled" id="Btn_anno_' + env2.VCServer + '">Annotate selected events</a>' +
+                            '</div>';
 
-                        //add a click handler which unhides the rows
-                        $('#Btn_showall_' + env2.VCServer).click(function () {
-                            $('a.rowhider').each(function () {
-                                if ($(this).hasClass('rowshidden')) {
-                                    $(this).trigger('click');
-                                }
-                            });
-                        });
+                        }
 
+                        htmlRenderOutput += '<div id="data_' + env2.VCServer + '"></div><div id="comments_' + env2.VCServer + '"> &nbsp </div>';
+                        output.append(htmlRenderOutput);
 
-                        //Initialise jquery button class magickery 
-                        //$("#Btn_anno_" + env2.VCServer).button();
-                        //$("#Btn_anno_" + env2.VCServer).button("disable");
-
+                        var dataID = $("#data_" + env2.VCServer);
                         //render the table
-                        $('#output').append('<div id="data_' + env2.VCServer + '"></div><div id="comments_' + env2.VCServer + '"> &nbsp </div>');
-                        GetPostsIntoTable(env2.VCServer, "data_" + env2.VCServer, startDate, endDate);
 
-                        //add handler to the button
-                        $("#Btn_anno_" + env2.VCServer).click(function () {
-                            $('table').removeClass('focusedTable');
-                            $("table#" + env2.VCServer).addClass('focusedTable');
-                            //$('#InvestigationText').empty();
-                            currentInvID = -1;
-                            $("#dialog-form").dialog("open");
-                        });
+                        GetPostsIntoTable(env2.VCServer, dataID, startDate, endDate, reportOnly);
+
+
                     }
                 );
             }
@@ -306,48 +290,54 @@ function RunPage() {
 
 
 
-function GetPostsIntoTable(env,location,start,end) {
+function GetPostsIntoTable(env,location,start,end,hideAllButtons) {
 
     var dateStartDate = new Date(start);
     var dateEndDate = new Date(end);
     var LogRequest = {}
 
-    //Add the start and end dates.
+    //Set up the Log request data object
+    //========================================================================
+    //Add the start and end dates. Format the strings so that the server can understand them (no native data conversion occurs in the request data object)
     LogRequest.startDate = start.toString();
-
     LogRequest.startDate = dateStartDate.format('M j Y H:i:s');
 
     LogRequest.endDate = end.toString();
     LogRequest.endDate = dateEndDate.format('M j Y H:i:s');
 
+    if (reportOnly == 0) {reportOnly = ""; }
+    if (reportOnly == "false") {reportOnly = ""; }
 
-    if (!env) {
-        LogRequest.environment = "prodpb2";
-    } else {
-        LogRequest.environment = env;
-    }
-
+    LogRequest.reportOnly = reportOnly;
+    LogRequest.environment = env;
 
     var DTO = {'LogRequest' : LogRequest};
 
+    var renderOutput = ""
+
+    //Send the request
+    //========================================================================
     $.ajax({
         type: "POST",
         url: "Service.asmx/GetEntries",
         data: JSON.stringify(DTO),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
+
+        //If the request is successful, parse the data
+        //========================================================================
         success: function (response) {
-            $('#' + location).empty();
+            location.empty();
 
             var les = response.d;
 
             if (les.length != 0) {
 
                 //Create the table header
-                $('#' + location).append('<table id="' + env + '" class="display table-striped table-bordered table-condensed"></table');
+                location.html('<table id="' + env + '" class="display table-striped table-bordered table-condensed"></table');
 
                 //create the table heading row
-                $('table#' + env).append('<thead><tr><!--<th colspan="6" id="' + env + '">' + env + '</th>--></tr><tr>' +
+                renderOutput += '<thead><tr><!--<th colspan="6" id="' + env + '">' + env + '</th>--></tr><tr>' +
                 '   <td>InvestigationID</td>' +
                 '  <td>Type</td>' +
                 '  <td>EntryID</td>' +
@@ -356,41 +346,43 @@ function GetPostsIntoTable(env,location,start,end) {
                 '   <td>#</td>' +
                 '   <td>Host</td>' +
                 '   <td>Cluster</td>' +
-                //'   <td> Id</td>' +
-
-
-                '</tr></thead><tbody>');
+                '</tr></thead><tbody>'
 
                 //render the data
-                var typeIconString = ""
+                var typeIconString = "";
+                var rowtag = "";
+                var l = les.length;
 
-                $.each(les, function (index, le) {
-                    var rowTag = '<tr class="data">';
-                    if (le.InvestigationID != 0) {
-                        rowTag = '<tr class="data investigated inv_' + le.InvestigationID + '">';
+                for (var i = 0; i < l; i++) {
+                    rowTag = '<tr class="data">';
+                    if (les[i].InvestigationID != 0) {
+                        rowTag = '<tr class="data investigated inv_' + les[i].InvestigationID + '">';
 
                     }
 
-                    $('table#' + env).append(rowTag +
-                    '   <td>' + le.InvestigationID + '</td>' +
-                    '   <td class=typeIcon>' + le.Type + '</td>' +
-                    '   <td class="cell_EntryID">' + le.EntryID + '</td>' +
-                    '   <td class="timecol">' + le.Time + '</td>' +
-                    '   <td class="selectable">' + le.Event + '</td>' +
-                    '   <td>' + le.Occurrences + '</td>' +
-                    '   <td>' + le.Host + '</td>' +
-                    '   <td>' + le.Cluster + '</td></tr>'
-                    );
-                });
+                    if (les[i].Type === 1) { typeIconString = '<i class="icon-list-alt"></i>' }
+                    else if (les[i].Type === 2) { typeIconString = '<i class="icon-warning-sign"></i>' }
+                    else if (les[i].Type === 3) { typeIconString = '<i class="icon-adjust"></i>' }
 
-                $("td.typeIcon:contains('1')").html('<i class="icon-list-alt"></i>');
-                $("td.typeIcon:contains('2')").html('<i class="icon-warning-sign"></i>');
-                $("td.typeIcon:contains('3')").html('<i class="icon-adjust"></i>');
+                    renderOutput += rowTag +
+                    '   <td>' + les[i].InvestigationID + '</td>' +
+                    '   <td class=typeIcon>' + typeIconString + '</td>' +
+                    '   <td class="cell_EntryID">' + les[i].EntryID + '</td>' +
+                    '   <td class="timecol">' + les[i].Time + '</td>' +
+                    '   <td class="selectable">' + les[i].Event + '</td>' +
+                    '   <td>' + les[i].Occurrences + '</td>' +
+                    '   <td>' + les[i].Host + '</td>' +
+                    '   <td>' + les[i].Cluster + '</td></tr>';
 
+                }
 
                 //close the table body
-                $('table#' + env).append("</tbody>");
+                renderOutput += "</tbody>"
 
+                //write the data into the dom
+                $('table#' + env).html(renderOutput);
+
+                //connect the current table to the datatable plugin
                 $('table#' + env).dataTable({
                     "bPaginate": false,
                     "bJQueryUI": true,
@@ -398,8 +390,6 @@ function GetPostsIntoTable(env,location,start,end) {
                     "bInfo": false,
                     //this bit groups the rows according to the investigation id.
                     "fnDrawCallback": function (oSettings) {
-
-                        //alert('DataTables has redrawn the table');
 
                         if (oSettings.aiDisplay.length == 0) {
                             return;
@@ -425,8 +415,8 @@ function GetPostsIntoTable(env,location,start,end) {
 
                                     addSpinner("inv_" + env + "_" + sGroup);
 
-                                    //Load the investigation details into the header row, and set up the row so that it has behaviour (rolling up and down)
-
+                                    //Load the investigation details into the header row
+                                    //====================================================================================================================
                                     var DTO = { "id": sGroup };
                                     $.ajax({
                                         async: false,
@@ -436,17 +426,24 @@ function GetPostsIntoTable(env,location,start,end) {
                                         contentType: "application/json; charset=utf-8",
                                         dataType: "json",
 
+                                        // If the request is successful, parse and render the data 
+                                        //====================================================================================================================
                                         success: function (response) {
                                             var invEntry = response.d;
 
-                                            //add the nice chevron, with the correct ID< so that when it gets clicked it can rollup the right rows
-                                            nCell.innerHTML = '<a class="btn rowhider" id="rowhider_' + invEntry.InvestigationID + '"  style="float:left;"><i class="icon-chevron-up"></i></a>' +
-                                                               '<a class="btn" id="edit_btn_' + invEntry.InvestigationID + '"  style="float:left;margin-right: 6px; "><i class="icon-pencil"></i></a>' +
 
-                                                              '<div class="investigationHeaderText">' + invEntry.Text.replace(/\n/g, "<br/>") + "</div>";
+                                            //add the buttons to the row 
+                                            //====================================================================================================================
+                                            var investigationHeaderHTML = "";
 
+                                            investigationHeaderHTML = '<a class="btn rowhider" id="rowhider_' + invEntry.InvestigationID + '"  style="float:left;margin-right: 6px;"><i class="icon-chevron-up"></i></a>';
+                                            if (!hideAllButtons) { investigationHeaderHTML += '<a class="btn" id="edit_btn_' + invEntry.InvestigationID + '"  style="float:left;margin-right: 6px; "><i class="icon-pencil"></i></a>' }
+                                            investigationHeaderHTML += '<div class="investigationHeaderText">' + invEntry.Text.replace(/\n/g, "<br/>") + "</div>";
 
-                                            //add a click handler which hides and unhides the rows
+                                            nCell.innerHTML = investigationHeaderHTML;
+
+                                            //add a click handler to the button which hides and unhides the rows
+                                            //====================================================================================================================
                                             $("#rowhider_" + invEntry.InvestigationID).click(function () {
                                                 if ($(this).hasClass('rowshidden')) {
                                                     //show
@@ -463,18 +460,22 @@ function GetPostsIntoTable(env,location,start,end) {
                                                 }
                                             });
 
-                                            //add a handler to the investigation text edit button
+                                            if (reportOnly) { $("#rowhider_" + invEntry.InvestigationID).trigger('click'); }
 
+                                            //add a click handler to the investigation text edit button
+                                            //====================================================================================================================
                                             $("#edit_btn_" + invEntry.InvestigationID).click(function () {
                                                 $('table').removeClass('focusedTable');
                                                 $(this).closest('table').addClass('focusedTable');
                                                 var text = $(this).parent().children('div.investigationHeaderText').html();
                                                 $('#InvestigationText').html(text);
-                                                //$('#InvestigationText').html
 
                                                 currentInvID = invEntry.InvestigationID;
                                                 $("#dialog-form").dialog("open");
                                             });
+
+
+                                           
 
                                         },
 
@@ -499,12 +500,38 @@ function GetPostsIntoTable(env,location,start,end) {
 
                 });
 
+
+                //add a click handler for the top button row
+                //====================================================================================================================
+                $('#Btn_hideall_' + env).click(function () {
+                    $('a.rowhider').each(function () {
+                        if (!($(this).hasClass('rowshidden'))) {
+                            $(this).trigger('click');
+                        }
+                    });
+                });
+
+                //add a click handler which unhides all investigations
+                $('#Btn_showall_' + env).click(function () {
+                    $('a.rowhider').each(function () {
+                        if ($(this).hasClass('rowshidden')) {
+                            $(this).trigger('click');
+                        }
+                    });
+                });
+
+                //add handler to the button
+                $("#Btn_anno_" + env).click(function () {
+                    $('table').removeClass('focusedTable');
+                    $("table#" + env).addClass('focusedTable');
+                    $('#InvestigationText').empty();
+                    currentInvID = -1;
+                    $("#dialog-form").dialog("open");
+                });
+
+
                 //make rows selectable
-
-
-
-
-
+                //====================================================================================================================
                 $("tbody").selectable({
                     filter: 'td',
                     selected: function (event, ui) {
@@ -527,17 +554,22 @@ function GetPostsIntoTable(env,location,start,end) {
                 });
 
 
-                //make group header rows unselectable
-
-                //$("td.group").unselectable();  //this isnt working
+                //return 1;
 
             } else {
-                $('#' + location).append("<p>No Data</p>");
+                // If the request is successful, but no data comes back, hide the section.
+                //====================================================================================================================
+                //location.html();
+                location.prev().append('<span> - No Data</span>');
+                location.next().remove();
+                location.remove();
+
             }
 
         },
         failure: function (msg) {
-            $('#' + location).text(msg);
+            location.text(msg);
+            //return 0;
         }
     });
 }
