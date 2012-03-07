@@ -13,14 +13,18 @@ namespace WebApplication3
 
         protected void Application_Start(object sender, EventArgs e)
         {
-            //RegisterRoutes(RouteTable.Routes);
+            RegisterRoutes(RouteTable.Routes);
         }
 
         public static void RegisterRoutes(RouteCollection routes)
         {
-           // routes.MapPageRoute("srv","{environment}/{cluster}/{server}","~/Main.aspx");
-            //routes.MapPageRoute("clus", "{environment}/{cluster}", "~/Main.aspx");
-            //routes.MapPageRoute("env", "{environment}", "~/Main.aspx");
+             routes.MapPageRoute(
+                 "View Server",
+                 "Servers/{server}",
+                 "~/server.aspx"
+             );
+             routes.MapPageRoute("View Cluster", "Clusters/{cluster}", "~/cluster.aspx");
+             routes.MapPageRoute("View Environment", "Environments/{environment}", "~/environment.aspx");
         }
 
         protected void Session_Start(object sender, EventArgs e)
