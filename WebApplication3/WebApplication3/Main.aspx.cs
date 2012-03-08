@@ -11,12 +11,8 @@ namespace WebApplication3
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            
-           // if (User.Identity.IsAuthenticated)
-           //     UserName.Text = User.Identity.Name;
-           // else
-           //     UserName.Text = "No user identity available.";
-  
+            //permalink.NavigateUrl = Request.Url + "?startDate=!sd!&endDate=!ed!";
+            //permalinkInvestigated.NavigateUrl = Request.Url + "?startDate=!sd!&endDate=!ed!&reportOnly=True";
         }
     }
 }

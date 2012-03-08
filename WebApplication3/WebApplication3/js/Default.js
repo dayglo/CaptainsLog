@@ -45,53 +45,62 @@ function addSpinner(id) {
 
 $(document).ready(function () {
 
-
     RunPage();
 
     //filter output 
-
     if ($.browser.msie && $.browser.version.substr(0, 1) < 7) {
         $('.btn').hide();
     }
-
-
-
-
 });
 
 $(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
 
 function RunPage() {
 
+    var startDate = new Date();
+    var endDate = new Date();
+
     //collect URL parameters
     //If there is no startdate or enddate, set them to be the period since the last working day
-    startDate = getUrlVars()["startDate"];
-    endDate = getUrlVars()["endDate"];
+
     reportOnly = getUrlVars()["reportOnly"];
 
-    if (startDate == undefined) {
-
-        var targetDate = new Date();
-        var dayOfWeek = targetDate.getDay();
-
+    //if there is a startdate in the query string, use it...
+    if (getUrlVars()["startDate"]) {
+        //change %20 to space and parse the date
+        startDate = Date.parse(getUrlVars()["startDate"].replace('%20',' '));
+    } else {
+        //...if not, build one from the current date
         switch (true) {
-            //monday                                          
-            case (dayOfWeek == 1):
-                targetDate.setDate(targetDate.getDate() - 3);
+            //monday
+            case (Date.today().is().monday()):
+                startDate = (3).days().ago();
                 break;
-            //sunday                                          
-            case (dayOfWeek == 0):
-                targetDate.setDate(targetDate.getDate() - 2);
+            //sunday
+            case (Date.today().is().sunday()):
+                startDate = (2).days().ago();
                 break;
-            //rest of week                                          
+            //rest of week
             default:
-                targetDate.setDate(targetDate.getDate() - 1);
+                startDate = (1).days().ago();
                 break;
         }
-        targetDate.setHours(17, 00, 00, 00);
-        startDate = targetDate.toString();
+        //set the time
+        startDate.clearTime().addHours(17);
     }
-    if (endDate == undefined) { endDate = new Date().toString() }
+
+    if (getUrlVars()["endDate"]) {
+        //change %20 to space and parse the date
+        endDate = Date.parse(getUrlVars()["endDate"].replace('%20', ' '));
+    } else {
+        endDate = Date.today().clearTime().addHours(9);
+    }
+
+    //build links for reporting
+    var pageURL = [location.protocol, '//', location.host, location.pathname].join('');
+
+    $('#permalink').attr("href", pageURL + "?startDate=" + startDate.toString('d/M/yyyy HH:mm') + "&endDate=" + endDate.toString('d/M/yyyy HH:mm') + "");
+    $('#permalinkInvestigated').attr("href", pageURL + "?startDate=" + startDate.toString('d/M/yyyy HH:mm') + "&endDate=" + endDate.toString('d/M/yyyy HH:mm') + "&reportOnly=true");
 
     // Decide whether or not to hide all buttons (ie or report mode)
     var hideallbuttons = 0
@@ -99,7 +108,6 @@ function RunPage() {
     if (($.browser.msie && $.browser.version.substr(0, 1) < 7) || (reportOnly)) {
         hideallbuttons = 1;
     }
-
 
     // get a reference to the dialog box txt field
     var text = $("#InvestigationText"),
@@ -232,10 +240,9 @@ function RunPage() {
         //====================
 
         var output = $('#output');
-
+        var menu = $('ul.dropdown-menu');
 
         $('#output').empty();
-        $('#output').append('<h1>VMware Health Check</h2>');
         //$('#output').append('<textarea style="width:95%;" rows="3" cols="1" name="text" id="SummaryTextArea" class="SummaryTextArea text ui-widget-content ui-corner-all">Enter today`s summary here...</textarea>');
 
         $.each(
@@ -243,16 +250,18 @@ function RunPage() {
             ReportsToRequest.ReportingAreas,
             function (i, area) {
 
-
                 //...write the area name
-                output.append('<h2>' + area.Name + '</h2>');
+                output.append('<h2 class="shiftDown">' + area.Name + '</h2>');
 
                 $.each(
                 //for each environment in the reporting area
                     area.Environments,
                     function (i2, env2) {
 
-                        var htmlRenderOutput = ""
+                        menu.append('<li class=""><a href="#' + env2.VCServer + '">' + env2.VCServer + '</a></li>');
+
+                        //start the section
+                        var htmlRenderOutput = '<section id="' + env2.VCServer + '"><div> </div></section>'
 
                         //write the name of the VC
                         htmlRenderOutput += '<h3>' + env2.name + ' [VC:' + env2.VCServer + ']</h3>'
@@ -272,7 +281,11 @@ function RunPage() {
 
                         }
 
+                        //create the data area
                         htmlRenderOutput += '<div id="data_' + env2.VCServer + '"></div><div id="comments_' + env2.VCServer + '"> &nbsp </div>';
+
+                        //close the section
+                        htmlRenderOutput += '</section>';
                         output.append(htmlRenderOutput);
 
                         var dataID = $("#data_" + env2.VCServer);
@@ -299,10 +312,10 @@ function GetPostsIntoTable(env,location,start,end,hideAllButtons) {
     //Set up the Log request data object
     //========================================================================
     //Add the start and end dates. Format the strings so that the server can understand them (no native data conversion occurs in the request data object)
-    LogRequest.startDate = start.toString();
+   // LogRequest.startDate = start.toString();
     LogRequest.startDate = dateStartDate.format('M j Y H:i:s');
 
-    LogRequest.endDate = end.toString();
+   // LogRequest.endDate = end.toString();
     LogRequest.endDate = dateEndDate.format('M j Y H:i:s');
 
     if (reportOnly == 0) {reportOnly = ""; }
@@ -334,7 +347,7 @@ function GetPostsIntoTable(env,location,start,end,hideAllButtons) {
             if (les.length != 0) {
 
                 //Create the table header
-                location.html('<table id="' + env + '" class="display table-striped table-bordered table-condensed"></table');
+                location.html('<table id="' + env + '" class="width100percent display table-striped table-bordered table-condensed"></table');
 
                 //create the table heading row
                 renderOutput += '<thead><tr><!--<th colspan="6" id="' + env + '">' + env + '</th>--></tr><tr>' +
@@ -388,6 +401,7 @@ function GetPostsIntoTable(env,location,start,end,hideAllButtons) {
                     "bJQueryUI": true,
                     "bFilter": false,
                     "bInfo": false,
+                    "bAutoWidth":false,
                     //this bit groups the rows according to the investigation id.
                     "fnDrawCallback": function (oSettings) {
 
@@ -475,7 +489,7 @@ function GetPostsIntoTable(env,location,start,end,hideAllButtons) {
                                             });
 
 
-                                           
+
 
                                         },
 

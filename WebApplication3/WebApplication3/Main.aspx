@@ -13,19 +13,53 @@
     <link href="css/smoothness/jquery-ui-1.8.17.custom.css" rel="stylesheet" type="text/css" />
 
 
-    
-
 
 </head>
 <body>
-    
-    <form id="form2" runat="server">
- 
-    <!--<input type="button" id="Button1" value="Get Entries"/>
-    <asp:Label ID="UserName" runat="server" Text="username"></asp:Label> &nbsp; -->
-    <div id="output"></div>
-         
-    </form>
+    <div class="navbar navbar-fixed-top">
+        <a class="brand" href="#" style="margin-left:1px;"> Captain's Log</a>
+         <div class="navbar-inner">
+            <div class="container">
+                <ul class="nav">
+                <li class="active">
+                <a href="#">VMware Health</a>
+                </li>
+                <li><a href="#">Hardware</a></li>
+                <li><a href="#">Next</a></li>
+                </ul>
+            </div>
+         </div>
+    </div>
+
+
+
+    <div class="container-fluid" style="padding-top:50px;">
+
+        <form id="form2" runat="server">
+
+            <!--<input type="button" id="Button1" value="Get Entries"/>
+            <asp:Label ID="UserName" runat="server" Text="username"></asp:Label> &nbsp; -->
+             '<header id="overview" class="jumbotron subhead">
+                <h1>VMware Health Check</h1>
+                <p class="lead">A live view of all events triggered on the LBG VMware platforms.</p>
+              </header>
+
+             <div class="subnav">
+                <ul class="nav nav-pills">
+                    <li class="dropdown active">
+                        <a href="#" data-toggle="dropdown" class="dropdown-toggle">Environments<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                          
+                        </ul>
+                      </li>
+                      <li><a id="permalink" >Permalink to this page</a></li>
+                      <li><a id="permalinkInvestigated">Today`s Report Link (Investigated items only)</a></li>
+                </ul>
+             </div>
+            <div id="output"></div>
+        </form>
+
+    </div>
 
 
     <div id="dialog-form" title="Add Investigation Details">
@@ -54,5 +88,5 @@
     <script src="js/jquery.pfSelect.js" type="text/javascript"></script>
     <script src="js/spin.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="js/Default.js"> </script>
-
+    <script src="js/date-en-GB.js" type="text/javascript"></script>
 </html>
