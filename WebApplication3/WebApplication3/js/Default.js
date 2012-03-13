@@ -177,18 +177,7 @@ function RunPage() {
 
     //Set up the JSON which contains the environments to query
 
-    var ReportsToRequest = {
-        "ReportingAreas": [
-            {
-                "Name": "Heritage HBOS",
-                "Environments": [
-                    { "name": "Infra", "VCServer": "infrp0101" },
-                    { "name": "Preprod", "VCServer": "infrp0100" },
-                    { "name": "Prod", "VCServer": "infrl0100" }
-                ]
-            }
-        ]
-    }
+
 
     var ReportsToRequest = {
         "ReportingAreas": [
@@ -230,7 +219,18 @@ function RunPage() {
     }
 
 
-
+        var ReportsToRequest = {
+            "ReportingAreas": [
+            {
+                "Name": "Heritage HBOS",
+                "Environments": [
+                    { "name": "Infra", "VCServer": "infrp0101" },
+                    { "name": "Preprod", "VCServer": "infrp0100" },
+                    { "name": "Prod", "VCServer": "infrl0100" }
+                ]
+            }
+        ]
+        }
 
 
 
@@ -303,8 +303,9 @@ function RunPage() {
 
 
 
-function GetPostsIntoTable(env,location,start,end,hideAllButtons) {
+function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
 
+    var location = $(locID);
     var dateStartDate = new Date(start);
     var dateEndDate = new Date(end);
     var LogRequest = {}
@@ -371,6 +372,8 @@ function GetPostsIntoTable(env,location,start,end,hideAllButtons) {
                     if (les[i].InvestigationID != 0) {
                         rowTag = '<tr class="data investigated inv_' + les[i].InvestigationID + '">';
 
+                    } else {
+                        rowTag = '<tr class="data unInvestigated inv_' + les[i].InvestigationID + '">';
                     }
 
                     if (les[i].Type === 1) { typeIconString = '<i class="icon-list-alt"></i>' }
@@ -401,7 +404,7 @@ function GetPostsIntoTable(env,location,start,end,hideAllButtons) {
                     "bJQueryUI": true,
                     "bFilter": false,
                     "bInfo": false,
-                    "bAutoWidth":false,
+                    "bAutoWidth": false,
                     //this bit groups the rows according to the investigation id.
                     "fnDrawCallback": function (oSettings) {
 
@@ -416,8 +419,23 @@ function GetPostsIntoTable(env,location,start,end,hideAllButtons) {
                             var iDisplayIndex = oSettings._iDisplayStart + i;
                             var sGroup = oSettings.aoData[oSettings.aiDisplay[iDisplayIndex]]._aData[0]; // 0 for the first cell in the row, which is investigation id.
 
-                            if (sGroup != 0) {
-                                if (sGroup != sLastGroup) {
+                            if (sGroup != sLastGroup) {
+
+                                var InvestigationText = ""
+
+                                if (sGroup == 0) {
+                                    var nGroup = document.createElement('tr');
+                                    var nCell = document.createElement('td');
+                                    nCell.colSpan = iColspan;
+
+                                    nCell.className = "groupUninvestigated";
+
+                                    nCell.innerHTML += '<span class= id="inv_' + env + '_' + sGroup + '"></span> <em> Not Investigated</em>';
+                                    nGroup.appendChild(nCell);
+                                    nTrs[i].parentNode.insertBefore(nGroup, nTrs[i]);
+                                    InvestigationText = "Not Yet Investigated";
+
+                                } else {
                                     var nGroup = document.createElement('tr');
                                     var nCell = document.createElement('td');
                                     nCell.colSpan = iColspan;
@@ -444,53 +462,7 @@ function GetPostsIntoTable(env,location,start,end,hideAllButtons) {
                                         //====================================================================================================================
                                         success: function (response) {
                                             var invEntry = response.d;
-
-
-                                            //add the buttons to the row 
-                                            //====================================================================================================================
-                                            var investigationHeaderHTML = "";
-
-                                            investigationHeaderHTML = '<a class="btn rowhider" id="rowhider_' + invEntry.InvestigationID + '"  style="float:left;margin-right: 6px;"><i class="icon-chevron-up"></i></a>';
-                                            if (!hideAllButtons) { investigationHeaderHTML += '<a class="btn" id="edit_btn_' + invEntry.InvestigationID + '"  style="float:left;margin-right: 6px; "><i class="icon-pencil"></i></a>' }
-                                            investigationHeaderHTML += '<div class="investigationHeaderText">' + invEntry.Text.replace(/\n/g, "<br/>") + "</div>";
-
-                                            nCell.innerHTML = investigationHeaderHTML;
-
-                                            //add a click handler to the button which hides and unhides the rows
-                                            //====================================================================================================================
-                                            $("#rowhider_" + invEntry.InvestigationID).click(function () {
-                                                if ($(this).hasClass('rowshidden')) {
-                                                    //show
-                                                    $('.inv_' + invEntry.InvestigationID).show();
-                                                    $(this).html('<i class="icon-chevron-up"></i>');
-                                                    $(this).removeClass('rowshidden');
-                                                    $(this).parent().children('div.investigationHeaderText').removeClass('collapsed-text');
-                                                } else {
-                                                    //hide
-                                                    $('.inv_' + invEntry.InvestigationID).hide();
-                                                    $(this).html('<i class="icon-chevron-down"></i>');
-                                                    $(this).addClass('rowshidden');
-                                                    $(this).parent().children('div.investigationHeaderText').addClass('collapsed-text');
-                                                }
-                                            });
-
-                                            if (reportOnly) { $("#rowhider_" + invEntry.InvestigationID).trigger('click'); }
-
-                                            //add a click handler to the investigation text edit button
-                                            //====================================================================================================================
-                                            $("#edit_btn_" + invEntry.InvestigationID).click(function () {
-                                                $('table').removeClass('focusedTable');
-                                                $(this).closest('table').addClass('focusedTable');
-                                                var text = $(this).parent().children('div.investigationHeaderText').html();
-                                                $('#InvestigationText').html(text);
-
-                                                currentInvID = invEntry.InvestigationID;
-                                                $("#dialog-form").dialog("open");
-                                            });
-
-
-
-
+                                            InvestigationText = invEntry.Text.replace(/\n/g, "<br/>");
                                         },
 
                                         failure: function (msg) {
@@ -499,10 +471,79 @@ function GetPostsIntoTable(env,location,start,end,hideAllButtons) {
 
                                     });
 
-                                    sLastGroup = sGroup;
                                 }
+
+                                //add the buttons to the row 
+                                //====================================================================================================================
+                                var investigationHeaderHTML = "";
+
+                                investigationHeaderHTML = '<a class="btn rowhider rowhider_' + sGroup + '"  style="float:left;margin-right: 6px;"><i class="icon-chevron-up"></i></a>';
+
+                                //if the hideallbuttons flag is preset, do not show the edit button.
+                                //also, if these events have not yet been investigated, do not show the edit button, as there is nothing to edit.
+
+                                if (sGroup != 0) {
+                                    if (!hideAllButtons) {
+                                        investigationHeaderHTML += '<a class="btn" id="edit_btn_' + sGroup + '"  style="float:left;margin-right: 6px; "><i class="icon-pencil"></i></a>'
+                                    }
+                                }
+                                investigationHeaderHTML += '<div class="investigationHeaderText">' + InvestigationText + "</div>";
+
+                                nCell.innerHTML = investigationHeaderHTML;
+
+                                if (sGroup != 0) {
+                                    //add a click handler to the investigation text edit button
+                                    //====================================================================================================================
+                                    $("#edit_btn_" + sGroup).click(function () {
+                                        $('table').removeClass('focusedTable');
+                                        $(this).closest('table').addClass('focusedTable');
+                                        var text = $(this).parent().children('div.investigationHeaderText').html();
+                                        $('#InvestigationText').html(text);
+
+                                        currentInvID = sGroup;
+                                        $("#dialog-form").dialog("open");
+                                    });
+                                }
+
+
+                                //iterate
+                                sLastGroup = sGroup;
                             }
                         }
+
+                        //add a click handler to the button which hides and unhides the rows
+                        //======================s==============================================================================================
+
+                        $(".rowhider").click(function () {
+
+                            //find the rowhider_ ID and use this to find the rows.
+                            var classes = $(this).attr('class');
+                            var myregexp = /rowhider_(\d+)/;
+                            var myMatch = myregexp.exec(classes);
+                            var id = myMatch[1];
+
+                            var thisTable = $(this).closest('table').attr('id');
+
+                            if ($(this).hasClass('rowshidden')) {
+                                //show
+
+
+                                $('table#' + thisTable + ' .inv_' + id).show();
+                                $(this).html('<i class="icon-chevron-up"></i>');
+                                $(this).removeClass('rowshidden');
+                                $(this).parent().children('div.investigationHeaderText').removeClass('collapsed-text');
+                            } else {
+                                //hide
+                                $('table#' + thisTable + ' .inv_' + id).hide();
+                                $(this).html('<i class="icon-chevron-down"></i>');
+                                $(this).addClass('rowshidden');
+                                $(this).parent().children('div.investigationHeaderText').addClass('collapsed-text');
+                            }
+                        });
+
+                        if (reportOnly) { $(".rowhider_" + sGroup).trigger('click'); }
+
+
                     },
                     "aoColumnDefs": [
                         { "bVisible": false, "aTargets": [0] }
