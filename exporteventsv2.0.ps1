@@ -448,6 +448,8 @@ function addEventsToDB($env,$clus,$obj,$time,$content,$type){
         	throw "No environment specified"
         } else {
 
+        	if ($ENV:cbfdebug -eq "True") {write-host "adding $obj "}
+
         	#get environment ID from name
         	$envID = AddEnvironment $cs $env
 
@@ -478,11 +480,13 @@ function addEventsToDB($env,$clus,$obj,$time,$content,$type){
 			,[description]
 		   	,[serverID]
 		   	,[appID]
+		   	,[occurrences]
 		   	,[type])
 			VALUES
 		   	(@time
 		   	,@message
 		   	,@serverID
+		   	,1
 		   	,1
 		   	,@type)"
 		   
