@@ -39,7 +39,7 @@
 
             <!--<input type="button" id="Button1" value="Get Entries"/>
             <asp:Label ID="UserName" runat="server" Text="username"></asp:Label> &nbsp; -->
-             '<header id="overview" class="jumbotron subhead">
+             <header id="overview" class="jumbotron subhead">
                 <h1>VMware Health Check</h1>
                 <p class="lead">A live view of all events triggered on the LBG VMware platforms.</p>
               </header>
