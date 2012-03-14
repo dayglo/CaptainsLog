@@ -155,7 +155,7 @@ function RunPage() {
                     success: function (response) {
                        
                        //if the investigation was successfully sent to the server, reload the individual table.
-                       GetPostsIntoTable($(".focusedTable").attr('id'), "data_" + $(".focusedTable").attr('id'), startDate, endDate, reportOnly);
+                       GetPostsIntoTable($(".focusedTable").attr('id'), "#data_" + $(".focusedTable").attr('id'), startDate, endDate, reportOnly);
                     
                     },
                     failure: function (msg) {
@@ -288,7 +288,7 @@ function RunPage() {
                         htmlRenderOutput += '</section>';
                         output.append(htmlRenderOutput);
 
-                        var dataID = $("#data_" + env2.VCServer);
+                        var dataID = "#data_" + env2.VCServer;
                         //render the table
 
                         GetPostsIntoTable(env2.VCServer, dataID, startDate, endDate, reportOnly);
@@ -305,7 +305,7 @@ function RunPage() {
 
 function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
 
-    var location = $(locID);
+
     var dateStartDate = new Date(start);
     var dateEndDate = new Date(end);
     var LogRequest = {}
@@ -341,6 +341,7 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
         //If the request is successful, parse the data
         //========================================================================
         success: function (response) {
+            var location = $(locID);
             location.empty();
 
             var les = response.d;
@@ -405,6 +406,9 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
                     "bFilter": false,
                     "bInfo": false,
                     "bAutoWidth": false,
+                    "bDestroy": true,
+
+
                     //this bit groups the rows according to the investigation id.
                     "fnDrawCallback": function (oSettings) {
 
@@ -511,38 +515,7 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
                             }
                         }
 
-                        //add a click handler to the button which hides and unhides the rows
-                        //======================s==============================================================================================
-
-                        $(".rowhider").click(function () {
-
-                            //find the rowhider_ ID and use this to find the rows.
-                            var classes = $(this).attr('class');
-                            var myregexp = /rowhider_(\d+)/;
-                            var myMatch = myregexp.exec(classes);
-                            var id = myMatch[1];
-
-                            var thisTable = $(this).closest('table').attr('id');
-
-                            if ($(this).hasClass('rowshidden')) {
-                                //show
-
-
-                                $('table#' + thisTable + ' .inv_' + id).show();
-                                $(this).html('<i class="icon-chevron-up"></i>');
-                                $(this).removeClass('rowshidden');
-                                $(this).parent().children('div.investigationHeaderText').removeClass('collapsed-text');
-                            } else {
-                                //hide
-                                $('table#' + thisTable + ' .inv_' + id).hide();
-                                $(this).html('<i class="icon-chevron-down"></i>');
-                                $(this).addClass('rowshidden');
-                                $(this).parent().children('div.investigationHeaderText').addClass('collapsed-text');
-                            }
-                        });
-
-                        if (reportOnly) { $(".rowhider_" + sGroup).trigger('click'); }
-
+                       
 
                     },
                     "aoColumnDefs": [
@@ -555,6 +528,38 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
 
                 });
 
+                //add a click handler to the button which hides and unhides the rows
+                //======================s==============================================================================================
+
+                //$(".rowhider").click(function () {
+                
+                $('table#' + env + " .rowhider").on('click', function () {
+                    //find the rowhider_ ID and use this to find the rows.
+                    var classes = $(this).attr('class');
+                    var myregexp = /rowhider_(\d+)/;
+                    var myMatch = myregexp.exec(classes);
+                    var id = myMatch[1];
+
+                    var thisTable = $(this).closest('table').attr('id');
+
+                    if ($(this).hasClass('rowshidden')) {
+                        //show
+
+
+                        $('table#' + thisTable + ' .inv_' + id).show();
+                        $(this).html('<i class="icon-chevron-up"></i>');
+                        $(this).removeClass('rowshidden');
+                        $(this).parent().children('div.investigationHeaderText').removeClass('collapsed-text');
+                    } else {
+                        //hide
+                        $('table#' + thisTable + ' .inv_' + id).hide();
+                        $(this).html('<i class="icon-chevron-down"></i>');
+                        $(this).addClass('rowshidden');
+                        $(this).parent().children('div.investigationHeaderText').addClass('collapsed-text');
+                    }
+                });
+
+                if (reportOnly) { $('table#' + env + " .rowhider").trigger('click'); }
 
                 //add a click handler for the top button row
                 //====================================================================================================================
