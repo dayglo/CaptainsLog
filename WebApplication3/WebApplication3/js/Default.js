@@ -12,6 +12,66 @@ $.extend($.expr[':'], {
     }
 });
 
+//function which allows shiftclicking
+(function ($) {
+    $.fn.shiftClick = function () {
+        var lastSelected;
+        var tableRows = $(this);
+
+        this.each(function () {
+            $(this).children('td').attr('unselectable', 'on');
+            $(this).click(function (ev) {
+
+                if ($(this).hasClass('clicked')) {
+                    //clicking a row which was already selected
+
+                    if (ev.shiftKey) {
+                        //$(this).siblings().removeClass('clicked');
+
+                        var last = tableRows.index(lastSelected);
+                        var first = tableRows.index(this);
+
+                        var start = Math.min(first, last);
+                        var end = Math.max(first, last);
+
+                        for (var i = start; i <= end; i++) {
+                            if (tableRows[i].children[0].tagName.toLowerCase() == 'td') tableRows[i].setAttribute('class', 'clicked');
+                        }
+
+                    } else if (ev.ctrlKey) {
+                        $(this).removeClass('clicked');
+                    } else {
+                        $(this).siblings().removeClass('clicked');
+                        $(this).addClass('clicked');
+                    }
+                } else {
+                    //clicking a row which was not already selected
+                    if (ev.shiftKey) {
+                        var last = tableRows.index(lastSelected);
+                        var first = tableRows.index(this);
+
+                        var start = Math.min(first, last);
+                        var end = Math.max(first, last);
+
+                        for (var i = start; i <= end; i++) {
+                            if (tableRows[i].children[0].tagName.toLowerCase() == 'td') tableRows[i].setAttribute('class', 'clicked');
+                        }
+                    } else if (ev.ctrlKey) {
+                        $(this).addClass('clicked');
+                        lastSelected = this;
+                    } else {
+                        $(this).siblings().removeClass('clicked');
+                        $(this).addClass('clicked');
+
+                        lastSelected = this;
+                    }
+                }
+            });
+        });
+    };
+})(jQuery);
+
+
 
 function getUrlVars() {
     var vars = [], hash;
@@ -44,6 +104,24 @@ function addSpinner(id) {
 
 
 $(document).ready(function () {
+
+
+    //disable text selection
+    $(function(){
+	    $.extend($.fn.disableTextSelect = function() {
+		    return this.each(function(){
+			    if($.browser.mozilla){//Firefox
+				    $(this).css('MozUserSelect','none');
+			    }else if($.browser.msie){//IE
+				    $(this).bind('selectstart',function(){return false;});
+			    }else{//Opera, etc.
+				    $(this).mousedown(function(){return false;});
+			    }
+		    });
+	    });
+	    $('.noSelect').disableTextSelect();//No text selection on elements with a class of 'noSelect'
+    });
+
 
     RunPage();
 
@@ -179,8 +257,12 @@ function RunPage() {
 
 
 
-    var ReportsToRequest = {
-        "ReportingAreas": [
+
+
+
+
+        var ReportsToRequest = {
+            "ReportingAreas": [
             {
                 "Name": "Heritage HBOS",
                 "Environments": [
@@ -216,7 +298,7 @@ function RunPage() {
                 ]
             }
         ]
-    }
+        }
 
 
         var ReportsToRequest = {
@@ -231,10 +313,6 @@ function RunPage() {
             }
         ]
         }
-
-
-
-
 
         // Populate everything
         //====================
@@ -386,7 +464,7 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
                     '   <td class=typeIcon>' + typeIconString + '</td>' +
                     '   <td class="cell_EntryID">' + les[i].EntryID + '</td>' +
                     '   <td class="timecol">' + les[i].Time + '</td>' +
-                    '   <td class="selectable">' + les[i].Event + '</td>' +
+                    '   <td>' + les[i].Event + '</td>' +
                     '   <td>' + les[i].Occurrences + '</td>' +
                     '   <td>' + les[i].Host + '</td>' +
                     '   <td>' + les[i].Cluster + '</td></tr>';
@@ -515,7 +593,7 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
                             }
                         }
 
-                       
+
 
                     },
                     "aoColumnDefs": [
@@ -529,10 +607,7 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
                 });
 
                 //add a click handler to the button which hides and unhides the rows
-                //======================s==============================================================================================
-
-                //$(".rowhider").click(function () {
-                
+                //====================================================================================================================                
                 $('table#' + env + " .rowhider").on('click', function () {
                     //find the rowhider_ ID and use this to find the rows.
                     var classes = $(this).attr('class');
@@ -563,8 +638,11 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
 
                 //add a click handler for the top button row
                 //====================================================================================================================
+
+
+
                 $('#Btn_hideall_' + env).click(function () {
-                    $('a.rowhider').each(function () {
+                    $('table#' + env + ' a.rowhider').each(function () {
                         if (!($(this).hasClass('rowshidden'))) {
                             $(this).trigger('click');
                         }
@@ -573,7 +651,7 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
 
                 //add a click handler which unhides all investigations
                 $('#Btn_showall_' + env).click(function () {
-                    $('a.rowhider').each(function () {
+                    $('table#' + env + ' a.rowhider').each(function () {
                         if ($(this).hasClass('rowshidden')) {
                             $(this).trigger('click');
                         }
@@ -589,32 +667,10 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
                     $("#dialog-form").dialog("open");
                 });
 
-
-                //make rows selectable
+                //make rows selectable, and disable browser text selection
                 //====================================================================================================================
-                $("tbody").selectable({
-                    filter: 'td',
-                    selected: function (event, ui) {
-                        $(ui.selected).siblings().addClass('ui-selected');
-
-                    },
-                    unselected: function (event, ui) {
-                        $(ui.unselected).siblings().removeClass('ui-selected');
-                    },
-
-                    stop: function (event, ui) {
-
-                        //enable and disabled the button annotate button depending on if any cells are selected.
-                        if ($("td.ui-selected").length > 0) {
-                            $("#Btn_anno_" + this.parentElement.id).button("enable");
-                        } else {
-                            $("#Btn_anno_" + this.parentElement.id).button("disable");
-                        }
-                    }
-                });
-
-
-                //return 1;
+                $('table#' + env + " tr").shiftClick();
+                $('table#' + env + " td").disableTextSelect();
 
             } else {
                 // If the request is successful, but no data comes back, hide the section.
@@ -623,9 +679,7 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
                 location.prev().append('<span> - No Data</span>');
                 location.next().remove();
                 location.remove();
-
             }
-
         },
         failure: function (msg) {
             location.text(msg);
@@ -633,4 +687,6 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
         }
     });
 }
+
+
 

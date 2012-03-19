@@ -85,8 +85,8 @@
     <script src="js/json2.js" type="text/javascript"></script>
     <script src="js/jquery-ui-1.8.17.custom.min.js" type="text/javascript"></script>
     <script type="text/javascript" charset="utf-8" src="/DataTables/media/js/jquery.dataTables.js"></script>
-    <script src="js/jquery.pfSelect.js" type="text/javascript"></script>
+   
     <script src="js/spin.min.js" type="text/javascript"></script>
-    <script type="text/javascript" src="js/Default.js"> </script>
     <script src="js/date-en-GB.js" type="text/javascript"></script>
+     <script type="text/javascript" src="js/Default.js"> </script>
 </html>

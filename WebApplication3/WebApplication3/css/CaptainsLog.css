@@ -7,13 +7,23 @@
 #selectable .ui-selecting { background: #FECA40; }
 #selectable .ui-selected { background: #F39814 !important; color: purple !important; }
 #selectable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
-.ui-selected
+
+tr.selected td
 {
 	background:Gray !important; 
 
 }
 
+tr.clicked td
+{
+	background:Gray !important; 
 
+}
+
+tr 
+{
+	cursor: pointer;
+}
 
 input 
 {
@@ -30,6 +40,12 @@ body
 .group 
 {
 	background:Yellow !important;	
+	border-top:1px solid gray;
+}
+
+.groupUninvestigated
+{
+	background: #BDBDBD !important;	
 	border-top:1px solid gray;
 }
 
