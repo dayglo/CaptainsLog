@@ -7,10 +7,9 @@
     <title></title>
     <!--<link href="css/reset.css" rel="stylesheet" type="text/css" />-->
     
-        <link href="css/CaptainsLog.css" rel="stylesheet" type="text/css" />
+    <link href="css/CaptainsLog.css" rel="stylesheet" type="text/css" />
     <link href="css/bootstrap.css" rel="stylesheet" type="text/css" />
-    <link href="css/smoothness/jquery.ui.all.css" rel="stylesheet" type="text/css" />
-    <link href="css/smoothness/jquery-ui-1.8.17.custom.css" rel="stylesheet" type="text/css" />
+
 
 
 
@@ -60,22 +59,26 @@
         </form>
 
     </div>
-
-
+    
+    <div style='display:none'>
     <div id="dialog-form" title="Add Investigation Details">
-	    <p  class="validateTips">Enter your notes regarding the selected log events</p>
+        <div class='inv-content' style="height:280px;">
+        <h1 class='inv-title'>Enter your notes regarding the selected log events</h1>
 
-	    <form id="invForm">
-	    <fieldset>
-		    <label for="text">Text</label>
-		    
-            
-            <textarea rows="1" cols="1" name="text" id="InvestigationText" class="investigationTextArea text ui-widget-content ui-corner-all"></textarea>
-		    <!--<label for="KnownError">Known Error</label>
-		    <input type="text" name="KnownError" id="KnownError" value="" class="text ui-widget-content ui-corner-all" />-->
-	    </fieldset>
-	    </form>
+	
+            <form action='#' style='display:none'>
+                
+                <div id="InvestigationID" style='display:none'>-1</div>
+		        <label for="text">Text</label>
+                <textarea rows="9" cols="1" name="text" id="InvestigationText" class="investigationTextArea text ui-widget-content ui-corner-all"></textarea>
+                <a class="btn" id="saveInv">Save</a>
+                <a class="btn" id="cancelInv">Cancel</a>
+            </form>
+        </div>
     </div>
+
+</div>
+    
 
 </body>
 
@@ -83,10 +86,11 @@
     <script src="js/jquery.blockUI.js" type="text/javascript"></script>    
     <script src="js/bootstrap.js" type="text/javascript"></script>
     <script src="js/json2.js" type="text/javascript"></script>
-    <script src="js/jquery-ui-1.8.17.custom.min.js" type="text/javascript"></script>
+  
     <script type="text/javascript" charset="utf-8" src="/DataTables/media/js/jquery.dataTables.js"></script>
-   
+       <script src="js/jquery.simplemodal-1.4.2.js" type="text/javascript"></script>
     <script src="js/spin.min.js" type="text/javascript"></script>
     <script src="js/date-en-GB.js" type="text/javascript"></script>
      <script type="text/javascript" src="js/Default.js"> </script>
+
 </html>

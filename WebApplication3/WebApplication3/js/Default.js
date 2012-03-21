@@ -1,8 +1,6 @@
 ﻿//Jacwright.com date formatting functions
 Date.prototype.format = function (format) { var returnStr = ''; var replace = Date.replaceChars; for (var i = 0; i < format.length; i++) { var curChar = format.charAt(i); if (i - 1 >= 0 && format.charAt(i - 1) == "\\") { returnStr += curChar } else if (replace[curChar]) { returnStr += replace[curChar].call(this) } else if (curChar != "\\") { returnStr += curChar } } return returnStr }; Date.replaceChars = { shortMonths: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], longMonths: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], shortDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], longDays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], d: function () { return (this.getDate() < 10 ? '0' : '') + this.getDate() }, D: function () { return Date.replaceChars.shortDays[this.getDay()] }, j: function () { return this.getDate() }, l: function () { return Date.replaceChars.longDays[this.getDay()] }, N: function () { return this.getDay() + 1 }, S: function () { return (this.getDate() % 10 == 1 && this.getDate() != 11 ? 'st' : (this.getDate() % 10 == 2 && this.getDate() != 12 ? 'nd' : (this.getDate() % 10 == 3 && this.getDate() != 13 ? 'rd' : 'th'))) }, w: function () { return this.getDay() }, z: function () { var d = new Date(this.getFullYear(), 0, 1); return Math.ceil((this - d) / 86400000) }, W: function () { var d = new Date(this.getFullYear(), 0, 1); return Math.ceil((((this - d) / 86400000) + d.getDay() + 1) / 7) }, F: function () { return Date.replaceChars.longMonths[this.getMonth()] }, m: function () { return (this.getMonth() < 9 ? '0' : '') + (this.getMonth() + 1) }, M: function () { return Date.replaceChars.shortMonths[this.getMonth()] }, n: function () { return this.getMonth() + 1 }, t: function () { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 0).getDate() }, L: function () { var year = this.getFullYear(); return (year % 400 == 0 || (year % 100 != 0 && year % 4 == 0)) }, o: function () { var d = new Date(this.valueOf()); d.setDate(d.getDate() - ((this.getDay() + 6) % 7) + 3); return d.getFullYear() }, Y: function () { return this.getFullYear() }, y: function () { return ('' + this.getFullYear()).substr(2) }, a: function () { return this.getHours() < 12 ? 'am' : 'pm' }, A: function () { return this.getHours() < 12 ? 'AM' : 'PM' }, B: function () { return Math.floor((((this.getUTCHours() + 1) % 24) + this.getUTCMinutes() / 60 + this.getUTCSeconds() / 3600) * 1000 / 24) }, g: function () { return this.getHours() % 12 || 12 }, G: function () { return this.getHours() }, h: function () { return ((this.getHours() % 12 || 12) < 10 ? '0' : '') + (this.getHours() % 12 || 12) }, H: function () { return (this.getHours() < 10 ? '0' : '') + this.getHours() }, i: function () { return (this.getMinutes() < 10 ? '0' : '') + this.getMinutes() }, s: function () { return (this.getSeconds() < 10 ? '0' : '') + this.getSeconds() }, u: function () { var m = this.getMilliseconds(); return (m < 10 ? '00' : (m < 100 ? '0' : '')) + m }, e: function () { return "Not Yet Supported" }, I: function () { return "Not Yet Supported" }, O: function () { return (-this.getTimezoneOffset() < 0 ? '-' : '+') + (Math.abs(this.getTimezoneOffset() / 60) < 10 ? '0' : '') + (Math.abs(this.getTimezoneOffset() / 60)) + '00' }, P: function () { return (-this.getTimezoneOffset() < 0 ? '-' : '+') + (Math.abs(this.getTimezoneOffset() / 60) < 10 ? '0' : '') + (Math.abs(this.getTimezoneOffset() / 60)) + ':00' }, T: function () { var m = this.getMonth(); this.setMonth(0); var result = this.toTimeString().replace(/^.+ \(?([^\)]+)\)?$/, '$1'); this.setMonth(m); return result }, Z: function () { return -this.getTimezoneOffset() * 60 }, c: function () { return this.format("Y-m-d\\TH:i:sP") }, r: function () { return this.toString() }, U: function () { return this.getTime() / 1000 } };
 
-var currentInvID = -1;
-
 $.extend($.expr[':'], {
     inView: function (a) {
         var st = (document.documentElement.scrollTop || document.body.scrollTop),
@@ -18,7 +16,7 @@ $.extend($.expr[':'], {
         var lastSelected;
         var tableRows = $(this);
 
-        this.each(function () {
+        this.filter('.data').each(function () {
             $(this).children('td').attr('unselectable', 'on');
             $(this).click(function (ev) {
 
@@ -103,24 +101,145 @@ function addSpinner(id) {
 }
 
 
+//set up investigation form object
+
+(function ($) {
+
+    $.fn.initInvestigationForm = function (LogRequest) {
+
+        // create a modal dialog with the data
+        $('#dialog-form').modal({
+            closeHTML: "<a href='#' title='Close' class='modal-close'>x</a>",
+            //position: ["15%",],
+            overlayId: 'inv-overlay',
+            containerId: 'inv-container',
+            onOpen: function (dialog) {
+
+
+                var title = "Enter Investigation Details:";
+
+                $('#inv-container .inv-title').html('Loading...');
+                dialog.overlay.fadeIn(200, function () {
+                    dialog.container.fadeIn(200, function () {
+                        dialog.data.fadeIn(200, function () {
+                            $('#inv-container .inv-content').animate({
+                                height: 280
+                            }, function () {
+                                $('#inv-container .inv-title').html(title);
+                                $('#inv-container form').fadeIn(200, function () {
+                                    $('#inv-container #InvestigationText').focus();
+
+                                    //$('#contact-container .contact-cc').click(function () {
+                                    //	var cc = $('#contact-container #contact-cc');
+                                    //	cc.is(':checked') ? cc.attr('checked', '') : cc.attr('checked', 'checked');
+                                    //});
+
+
+                                });
+                            });
+                        });
+                    });
+                });
+
+            },
+            onShow: function (dialog) {
+
+                $('#saveInv').on('click', function () {
+
+                    var text = $("#InvestigationText").val();
+                    var invID = $("#InvestigationID").html();
+                    //get all entry IDs from the selected rows in the focused table, so we can link the investigation to all the correct entries
+                    var entries = [];
+                    $(".focusedTable tr.clicked td").filter(".cell_EntryID").each(function (i, td) {
+                        entries.push(td.innerHTML);
+                    });
+
+                    //add investigation to db.
+                    var investigation = {
+                        "InvestigationEntry": {
+                            "InvestigationID": invID,
+                            "Text": text,
+                            //"Complete": false,
+                            //"KnownError": false,
+                            //"SupportRef": "test00001",
+                            //for each selected table 
+                            "EntryIDs": entries,
+                            "Modified": new Date().format('M j Y H:i:s')
+                        }
+                    }
+
+                    $.ajax({
+                        type: "POST",
+                        url: "Service.asmx/NewInvestigation",
+                        data: JSON.stringify(investigation),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (response) {
+
+                            //if the investigation was successfully sent to the server, reload the individual table.
+                            GetPostsIntoTable($(".focusedTable").attr('id'), "#data_" + $(".focusedTable").attr('id'), LogRequest.startDate, LogRequest.endDate, LogRequest.reportOnly);
+
+                        },
+                        failure: function (msg) {
+                            alert(msg);
+                        }
+                    });
+
+                    $('.modal-close').click();
+
+                });
+
+                 $('#cancelInv').on('click', function () {
+                    $('.modal-close').click();
+                 });
+
+
+            },
+
+
+            close: function (dialog) {
+			    //$('#inv-container .inv-message').fadeOut();
+			    $('#inv-container .inv-title').html('Goodbye...');
+			    $('#inv-container form').fadeOut(200);
+			    $('#inv-container .inv-content').animate({
+				    height: 40
+			    }, function () {
+				    dialog.data.fadeOut(200, function () {
+					    dialog.container.fadeOut(200, function () {
+						    dialog.overlay.fadeOut(200, function () {
+							    $.modal.close();
+						    });
+					    });
+				    });
+			    });
+		    },
+        });
+    };
+})(jQuery);
+
 $(document).ready(function () {
 
-
     //disable text selection
-    $(function(){
-	    $.extend($.fn.disableTextSelect = function() {
-		    return this.each(function(){
-			    if($.browser.mozilla){//Firefox
-				    $(this).css('MozUserSelect','none');
-			    }else if($.browser.msie){//IE
-				    $(this).bind('selectstart',function(){return false;});
-			    }else{//Opera, etc.
-				    $(this).mousedown(function(){return false;});
-			    }
-		    });
-	    });
-	    $('.noSelect').disableTextSelect();//No text selection on elements with a class of 'noSelect'
+    $(function () {
+        $.extend($.fn.disableTextSelect = function () {
+            return this.each(function () {
+                if ($.browser.mozilla) {//Firefox
+                    $(this).css('MozUserSelect', 'none');
+                } else if ($.browser.msie) {//IE
+                    $(this).bind('selectstart', function () { return false; });
+                } else {//Opera, etc.
+                    $(this).mousedown(function () { return false; });
+                }
+            });
+        });
+        $('.noSelect').disableTextSelect(); //No text selection on elements with a class of 'noSelect'
     });
+
+
+
+    /////
+
+
 
 
     RunPage();
@@ -188,70 +307,13 @@ function RunPage() {
     }
 
     // get a reference to the dialog box txt field
-    var text = $("#InvestigationText"),
-    //email = $("#email"),
-    //password = $("#password"),
-		allFields = $([]).add(text);  //.add(email).add(password),
 
-    //set up the dialog box
-    $("#dialog-form").dialog({
-        autoOpen: false,
-        height: 300,
-        width: 700,
-        modal: true,
-        buttons: {
-            "Save": function () {
-                var bValid = true;
-                allFields.removeClass("ui-state-error");
 
-                //get all entry IDs from the selected rows in the focused table, so we can link the investigation to all the correct entries
-                var entries = [];
-                $(".focusedTable td").filter(".ui-selected.cell_EntryID").each(function (i, td) {
-                    entries.push(td.innerHTML);
-                });
 
-                //add investigation to db.
-                var investigation = {
-                    "InvestigationEntry": {
-                        "InvestigationID": currentInvID,
-                        "Text": text[0].value,
-                        //"Complete": false,
-                        //"KnownError": false,
-                        //"SupportRef": "test00001",
-                        //for each selected table 
-                        "EntryIDs": entries,
-                        "Modified": new Date().format('M j Y H:i:s')
-                    }
-                }
+    
 
-                $.ajax({
-                    type: "POST",
-                    url: "Service.asmx/NewInvestigation",
-                    data: JSON.stringify(investigation),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (response) {
-                       
-                       //if the investigation was successfully sent to the server, reload the individual table.
-                       GetPostsIntoTable($(".focusedTable").attr('id'), "#data_" + $(".focusedTable").attr('id'), startDate, endDate, reportOnly);
-                    
-                    },
-                    failure: function (msg) {
-                        alert(msg);
-                    }
-                });
 
-                $(this).dialog("close");
 
-            },
-            Cancel: function () {
-                $(this).dialog("close");
-            }
-        },
-        close: function () {
-            //allFields.val("").removeClass("ui-state-error");
-        }
-    });
 
     //Set up the JSON which contains the environments to query
 
@@ -354,7 +416,7 @@ function RunPage() {
                                     '<a id="Btn_showall_' + env2.VCServer + '"class="btn"><i class="icon-chevron-down"></i> All</a>' +
                                     '<a id="Btn_hideall_' + env2.VCServer + '"class="btn"><i class="icon-chevron-up"></i> All</a>' +
                                 '</div> ' +
-                                ' <a class="btn btn-disabled" id="Btn_anno_' + env2.VCServer + '">Annotate selected events</a>' +
+                                ' <a class="btn" id="Btn_anno_' + env2.VCServer + '">Annotate selected events</a>' +
                             '</div>';
 
                         }
@@ -381,8 +443,10 @@ function RunPage() {
 
 
 
-function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
 
+
+
+function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
 
     var dateStartDate = new Date(start);
     var dateEndDate = new Date(end);
@@ -503,7 +567,7 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
 
                             if (sGroup != sLastGroup) {
 
-                                var InvestigationText = ""
+                                var InvestigationText = "";
 
                                 if (sGroup == 0) {
                                     var nGroup = document.createElement('tr');
@@ -566,27 +630,12 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
 
                                 if (sGroup != 0) {
                                     if (!hideAllButtons) {
-                                        investigationHeaderHTML += '<a class="btn" id="edit_btn_' + sGroup + '"  style="float:left;margin-right: 6px; "><i class="icon-pencil"></i></a>'
+                                        investigationHeaderHTML += '<a class="btn editbtn" id="edit_btn_' + sGroup + '"  style="float:left;margin-right: 6px; "><i class="icon-pencil"></i></a>'
                                     }
                                 }
                                 investigationHeaderHTML += '<div class="investigationHeaderText">' + InvestigationText + "</div>";
 
                                 nCell.innerHTML = investigationHeaderHTML;
-
-                                if (sGroup != 0) {
-                                    //add a click handler to the investigation text edit button
-                                    //====================================================================================================================
-                                    $("#edit_btn_" + sGroup).click(function () {
-                                        $('table').removeClass('focusedTable');
-                                        $(this).closest('table').addClass('focusedTable');
-                                        var text = $(this).parent().children('div.investigationHeaderText').html();
-                                        $('#InvestigationText').html(text);
-
-                                        currentInvID = sGroup;
-                                        $("#dialog-form").dialog("open");
-                                    });
-                                }
-
 
                                 //iterate
                                 sLastGroup = sGroup;
@@ -604,6 +653,27 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
                     "sDom": 'lfr<"giveHeight"t>ip'
 
 
+                });
+
+
+                //add a click handler to the investigation text edit button
+                //====================================================================================================================
+                                    
+                $(".editbtn").on('click',function () {
+                    
+                    var myregexp = /edit_btn_(\d+)/;
+                    var myMatch = myregexp.exec($(this).attr('id'));
+                    var id = myMatch[1];
+
+                    $('table').removeClass('focusedTable');
+                    $(this).closest('table').addClass('focusedTable');
+                    var text = $(this).parent().children('div.investigationHeaderText').val();
+                    $('#InvestigationText').val(text);
+                    $('#InvestigationID').html(id.toString());
+        
+                    $('table').removeClass('focusedTable');
+                    $("table#" + env).addClass('focusedTable');
+                    $().initInvestigationForm(LogRequest);
                 });
 
                 //add a click handler to the button which hides and unhides the rows
@@ -639,8 +709,6 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
                 //add a click handler for the top button row
                 //====================================================================================================================
 
-
-
                 $('#Btn_hideall_' + env).click(function () {
                     $('table#' + env + ' a.rowhider').each(function () {
                         if (!($(this).hasClass('rowshidden'))) {
@@ -659,13 +727,13 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
                 });
 
                 //add handler to the button
-                $("#Btn_anno_" + env).click(function () {
+                $('#Btn_anno_' + env).on('click', function () {
                     $('table').removeClass('focusedTable');
                     $("table#" + env).addClass('focusedTable');
-                    $('#InvestigationText').empty();
-                    currentInvID = -1;
-                    $("#dialog-form").dialog("open");
+                    $('#InvestigationID').html("-1");
+                    $().initInvestigationForm(LogRequest);
                 });
+
 
                 //make rows selectable, and disable browser text selection
                 //====================================================================================================================
