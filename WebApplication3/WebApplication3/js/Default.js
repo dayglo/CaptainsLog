@@ -386,10 +386,10 @@ function RunPage() {
                     area.Environments,
                     function (i2, env2) {
 
-                        menu.append('<li class=""><a href="#' + env2.VCServer + '">' + env2.VCServer + '</a></li>');
+                        menu.append('<li class=""><a href="#sec_' + env2.VCServer + '">' + env2.VCServer + '</a></li>');
 
                         //start the section
-                        var htmlRenderOutput = '<section id="' + env2.VCServer + '">';
+                        var htmlRenderOutput = '<section id="sec_' + env2.VCServer + '">';
 
                         //write the name of the VC
                         htmlRenderOutput += '<h3>' + env2.name + ' [VC:' + env2.VCServer + ']</h3>';
