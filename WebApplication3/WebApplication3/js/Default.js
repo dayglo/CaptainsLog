@@ -479,10 +479,12 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
             if (les.length != 0) {
 
                 //Create the table header
-                location.html('<table id="' + env + '" class="width100percent display table-striped table-bordered table-condensed"></table>');
+                renderOutput = '<table id="' + env + '" class="width100percent display table-striped table-bordered table-condensed">'
+                
+                //location.html('<table id="' + env + '" class="width100percent display table-striped table-bordered table-condensed"></table>');
 
                 //create the table heading row
-                renderOutput += '<thead><tr></tr><tr>' +
+                renderOutput += '<thead><tr>' +
                 '   <td>InvestigationID</td>' +
                 '  <td>Type</td>' +
                 '  <td>EntryID</td>' +
@@ -491,7 +493,7 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
                 '   <td>#</td>' +
                 '   <td>Host</td>' +
                 '   <td>Cluster</td>' +
-                '</tr></thead><tbody>'
+                '</tr></thead><tbody>';
 
                 //render the data
                 var typeIconString = "";
@@ -513,7 +515,7 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
 
                     renderOutput += rowTag +
                     '   <td>' + les[i].InvestigationID + '</td>' +
-                    '   <td class=typeIcon>' + typeIconString + '</td>' +
+                    '   <td class="typeIcon">' + typeIconString + '</td>' +
                     '   <td class="cell_EntryID">' + les[i].EntryID + '</td>' +
                     '   <td class="timecol">' + les[i].Time + '</td>' +
                     '   <td>' + les[i].Event + '</td>' +
@@ -524,10 +526,12 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
                 }
 
                 //close the table body
-                renderOutput += "</tbody>"
+                renderOutput += "</tbody></table>";
+
+                //alert(renderOutput);
 
                 //write the data into the dom
-                $('table#' + env).html(renderOutput);
+                location.html(renderOutput);
 
                 //connect the current table to the datatable plugin
                 $('table#' + env).dataTable({
