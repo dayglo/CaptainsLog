@@ -212,7 +212,7 @@ function addSpinner(id) {
 					    });
 				    });
 			    });
-		    },
+		    }
         });
     };
 })(jQuery);
@@ -306,20 +306,7 @@ function RunPage() {
         hideallbuttons = 1;
     }
 
-    // get a reference to the dialog box txt field
-
-
-
-    
-
-
-
-
     //Set up the JSON which contains the environments to query
-
-
-
-
 
 
 
@@ -363,7 +350,7 @@ function RunPage() {
         }
 
 
-        var ReportsToRequest = {
+                    var ReportsToRequest = {
             "ReportingAreas": [
             {
                 "Name": "Heritage HBOS",
@@ -375,6 +362,7 @@ function RunPage() {
             }
         ]
         }
+
 
         // Populate everything
         //====================
@@ -401,10 +389,10 @@ function RunPage() {
                         menu.append('<li class=""><a href="#' + env2.VCServer + '">' + env2.VCServer + '</a></li>');
 
                         //start the section
-                        var htmlRenderOutput = '<section id="' + env2.VCServer + '"><div> </div></section>'
+                        var htmlRenderOutput = '<section id="' + env2.VCServer + '">';
 
                         //write the name of the VC
-                        htmlRenderOutput += '<h3>' + env2.name + ' [VC:' + env2.VCServer + ']</h3>'
+                        htmlRenderOutput += '<h3>' + env2.name + ' [VC:' + env2.VCServer + ']</h3>';
 
                         if (!hideallbuttons) {
 
@@ -491,10 +479,10 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
             if (les.length != 0) {
 
                 //Create the table header
-                location.html('<table id="' + env + '" class="width100percent display table-striped table-bordered table-condensed"></table');
+                location.html('<table id="' + env + '" class="width100percent display table-striped table-bordered table-condensed"></table>');
 
                 //create the table heading row
-                renderOutput += '<thead><tr><!--<th colspan="6" id="' + env + '">' + env + '</th>--></tr><tr>' +
+                renderOutput += '<thead><tr></tr><tr>' +
                 '   <td>InvestigationID</td>' +
                 '  <td>Type</td>' +
                 '  <td>EntryID</td>' +
