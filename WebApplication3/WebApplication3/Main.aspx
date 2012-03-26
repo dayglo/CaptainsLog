@@ -16,7 +16,7 @@
 </head>
 <body>
     <div class="navbar navbar-fixed-top">
-        <a class="brand" href="#" style="margin-left:1px;"> Captain's Log</a>
+        <a class="brand" href="#" style="margin-left:1px;"><img alt="d" src="img/captains_log_icon.png" height="28" width="28" /><span style="position:relative; bottom:7px;margin-left:10px; padding-right:17px;">Captain's Log</span></a>
          <div class="navbar-inner">
             <div class="container">
                 <ul class="nav">
@@ -81,7 +81,8 @@
     
 
 </body>
-
+    <script type='text/javascript'
+        src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     <script src="js/jquery-1.7.1.min.js" type="text/javascript"></script>
     <script src="js/jquery.blockUI.js" type="text/javascript"></script>    
     <script src="js/bootstrap.js" type="text/javascript"></script>
