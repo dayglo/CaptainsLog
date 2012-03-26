@@ -127,6 +127,11 @@ h2.shiftDown
 	padding: 5px 5px 5px 5px !important;
 }
 
+.navbar 
+{
+	background:#333333;
+}
+
 
 /*
  * SimpleModal inv Form

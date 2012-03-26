@@ -18,7 +18,7 @@
     <div class="navbar navbar-fixed-top">
         <a class="brand" href="#" style="margin-left:1px;"><img alt="d" src="img/captains_log_icon.png" height="28" width="28" /><span style="position:relative; bottom:7px;margin-left:10px; padding-right:17px;">Captain's Log</span></a>
          <div class="navbar-inner">
-            <div class="container">
+
                 <ul class="nav">
                 <li class="active">
                 <a href="#">VMware Health</a>
@@ -26,7 +26,7 @@
                 <li><a href="#">Hardware</a></li>
                 <li><a href="#">Next</a></li>
                 </ul>
-            </div>
+
          </div>
     </div>
 
