@@ -128,6 +128,34 @@ function AddServer ($cs , $Name, $ClusID) {
 
 #================================================================================================
 # Inputs 
+#	$envid:		[int] A valid environment ID
+#	$type:		[int] Log type
+#
+# Returns
+# 	[datetime]	The time at which this log was collected last
+#
+# Details
+#
+#	If one is not found, default to 24 hours ago.
+#	
+#================================================================================================
+function GetLastCollectionTime($envID, $type){
+	
+	#Get the time at which stuff was last collected
+
+	$timeLastCollected = (get-rows $cs "select timeLastCollected from collectionTimes where environmentID = $envID AND  LogTypeID = $type").timeLastCollected
+
+	if (!$timeLastCollected) {
+		Write-Host "There was no time of last (type $type) log collection for $INFRServer. Collecting logs from past 24 hours."
+		$timeLastCollected = ((Get-Date).Addhours(-24))
+	}
+
+	return $timeLastCollected
+
+}
+
+#================================================================================================
+# Inputs 
 #	$cs:	A valid connection string
 #	$envID  A valid environment ID
 #	$type   The type ID of the log (1 for events, 2 for host alarms, etc)
@@ -146,8 +174,19 @@ function UpdateLogTime ($cs , $envID, $type) {
 	$cmd = New-Object system.Data.SqlClient.sqlcommand
 	$cmd.connection = $conn
 	
-	$now = (Get-Date).Addhours(0)
-	#$cmd.commandtext = "UPDATE collectiontimes SET timeLastCollected = '$now' WHERE environmentID = $envID and logTypeID = $type"
+	$fixedCollectionTime = (get-rows $cs "select fixedCollectionTime from collectionTimes where environmentID = $envID AND  LogTypeID = $type").fixedCollectionTime
+
+	$now = Get-Date
+
+	if ($fixedCollectionTime) {
+		write-host "User has specified to only update the date, not the time"
+
+		$timeLastCollected = (get-rows $cs "select timeLastCollected from collectionTimes where environmentID = $envID AND  LogTypeID = $type").timeLastCollected
+
+		$now = Get-Date -hour $timeLastCollected.hour -minute $timeLastCollected.minute -second $timeLastCollected.second
+	}
+
+	#write-host $now.ToString()
 
 	$cmd.commandtext = "
 	UPDATE collectiontimes SET timeLastCollected = '$now' WHERE environmentID = $envID and logTypeID = $type
@@ -157,6 +196,7 @@ function UpdateLogTime ($cs , $envID, $type) {
     "
 
 	$cmd.executenonquery() | out-null 
+	
 }
 
 #================================================================================================
@@ -340,7 +380,7 @@ function GetTriggeredAlarms($cs, $INFRServer) {
 	} else {
 		
 		#update the timelastcollected value in the db
-		UpdateLogTime $cs  $envID 2
+		UpdateLogTime $cs $envID 2
 
 		$alarms = $alarmMgr.GetAlarm($null)
 		$valarms = $alarms | select value, @{N="name";E={(Get-View -Id $_).Info.Name}}
@@ -349,14 +389,14 @@ function GetTriggeredAlarms($cs, $INFRServer) {
             if ($HostsView.TriggeredAlarmState){
 				$hostsTriggeredAlarms = $HostsView.TriggeredAlarmState
 				Foreach ($hostsTriggeredAlarm in $hostsTriggeredAlarms){
-					if 	($hostsTriggeredAlarm.time -gt $timeLastCollected){
+					#if 	($hostsTriggeredAlarm.time -gt $timeLastCollected){
 						$Details = "" | Select-Object Object, Alarm, Status, Time
 						$Details.Object = $HostsView.name
 						$Details.Alarm = ($valarms |?{$_.value -eq ($hostsTriggeredAlarm.alarm.value)}).name
 						$Details.Status = $hostsTriggeredAlarm.OverallStatus
 						$Details.Time = $hostsTriggeredAlarm.time
 						$hostsalarms += $Details
-					}
+					#}
 				}
 			}
 		}
@@ -364,8 +404,8 @@ function GetTriggeredAlarms($cs, $INFRServer) {
 		If (($hostsalarms | Measure-Object).count -gt 0) {
             $hostsalarms = @($hostsalarms |sort Object)
             foreach ($hostalarm in $hostsalarms){
-            	$alarmString = $hostalarm.alarm + " - " + $hostalarm.status
-                addEventsToDB($INFRServer,$null,$hostalarm.Object,$hostalarm.time,$alarmstring,2)            
+            	$alarmString = $hostalarm.time.tostring() + " - " + $hostalarm.alarm + " - " + $hostalarm.status
+                addEventsToDB $INFRServer $null $hostalarm.Object $now $alarmstring 2            
 			}
 		}   
 
@@ -414,9 +454,9 @@ function GetTriggeredAlarms($cs, $INFRServer) {
 		If (($datastoresalarms | Measure-Object).count -gt 0) {
 			$datastoresalarms = @($datastoresalarms |sort Object)
             foreach ($datastorealarm in $datastoresalarms){
-            		
-				$alarmString = $datastorealarm.alarm + " - " + $datastorealarm.status
-                addEventsToDB($INFRServer,$null,$datastorealarm.Object,$datastorealarm.time,$alarmstring,3)
+            	write-host $datastorealarm.Object
+				$alarmString = $datastorealarm.time.tostring() + " - " + $datastorealarm.alarm + " - " + $datastorealarm.status
+                addEventsToDB $INFRServer $null $datastorealarm.Object $now $alarmstring 3
 			}
 		}
 	}
@@ -448,7 +488,7 @@ function addEventsToDB($env,$clus,$obj,$time,$content,$type){
         	throw "No environment specified"
         } else {
 
-        	if ($ENV:cbfdebug -eq "True") {write-host "adding $obj "}
+        	write-host "- adding $obj - $content "
 
         	#get environment ID from name
         	$envID = AddEnvironment $cs $env
@@ -547,32 +587,6 @@ function get-rows ($cs ,$query) {
 	$conn.close()
 }
 
-#================================================================================================
-# Inputs 
-#	$envid:		[int] A valid environment ID
-#	$type:		[int] Log type
-#
-# Returns
-# 	[datetime]	The time at which this log was collected last
-#
-# Details
-#
-#	If one is not found, default to 24 hours ago.
-#	
-#================================================================================================
-function GetLastCollectionTime($envID, $type){
-	
-	#Get the time at which stuff was last collected.
-	$timeLastCollected = (get-rows $cs "select timeLastCollected from collectionTimes where environmentID = $envID AND  LogTypeID = $type").timeLastCollected
-
-	if (!$timeLastCollected) {
-		Write-Host "There was no time of last (type $type) log collection for $INFRServer. Collecting logs from past 24 hours."
-		$timeLastCollected = ((Get-Date).Addhours(-24))
-	}
-
-	return $timeLastCollected
-
-}
 
 #================================================================================================
 # Inputs 
