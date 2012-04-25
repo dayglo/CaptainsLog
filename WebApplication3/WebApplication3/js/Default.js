@@ -308,7 +308,18 @@ function RunPage() {
 
     //Set up the JSON which contains the environments to query
 
-
+       var ReportsToRequest = {
+            "ReportingAreas": [
+            {
+                "Name": "Heritage HBOS",
+                "Environments": [
+                    { "name": "Infra", "VCServer": "infrp0101" },
+                    { "name": "Preprod", "VCServer": "infrp0100" },
+                    { "name": "Prod", "VCServer": "infrl0100" }
+                ]
+            }
+        ]
+        }
 
         var ReportsToRequest = {
             "ReportingAreas": [
@@ -342,26 +353,23 @@ function RunPage() {
             {
                 "Name": "Distributed Services Pre-Provisioning (DSPP)",
                 "Environments": [
-                    { "name": "Preprod", "VCServer": "proddspp" },
-                    { "name": "Live", "VCServer": "e2eassurance" }
+                    { "name": "Preprod", "VCServer": "preproddspp" },
+                    { "name": "Live", "VCServer": "proddspp" }
                 ]
-            }
-        ]
-        }
-
-
-                    var ReportsToRequest = {
-            "ReportingAreas": [
+            },
             {
-                "Name": "Heritage HBOS",
+                "Name": "Scottish Widows",
                 "Environments": [
-                    { "name": "Infra", "VCServer": "infrp0101" },
-                    { "name": "Preprod", "VCServer": "infrp0100" },
-                    { "name": "Prod", "VCServer": "infrl0100" }
+                    { "name": "Scottish Widows 1", "VCServer": "scotwid1" },
+                    { "name": "Scottish Widows 2", "VCServer": "scotwid2" }
                 ]
             }
+
         ]
         }
+
+
+
 
 
         // Populate everything
@@ -386,7 +394,7 @@ function RunPage() {
                     area.Environments,
                     function (i2, env2) {
 
-                        menu.append('<li class=""><a href="#sec_' + env2.VCServer + '">' + env2.VCServer + '</a></li>');
+                        menu.append('<li class=""><a href="#' + env2.VCServer + '">' + env2.VCServer + '</a></li>');
 
                         //start the section
                         var htmlRenderOutput = '<section id="sec_' + env2.VCServer + '">';
@@ -659,8 +667,8 @@ function GetPostsIntoTable(env,locID,start,end,hideAllButtons) {
 
                     $('table').removeClass('focusedTable');
                     $(this).closest('table').addClass('focusedTable');
-                    var text = $(this).parent().children('div.investigationHeaderText').val();
-                    $('#InvestigationText').val(text);
+                    var text = $(this).parent().children('div.investigationHeaderText').html();
+                    $('#InvestigationText').html(text);
                     $('#InvestigationID').html(id.toString());
         
                     $('table').removeClass('focusedTable');
