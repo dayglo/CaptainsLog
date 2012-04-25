@@ -23,8 +23,8 @@
                 <li class="active">
                 <a href="#">VMware Health</a>
                 </li>
-                <li><a href="#">Hardware</a></li>
-                <li><a href="#">Next</a></li>
+                <!--<li><a href="#">Hardware</a></li>
+                <li><a href="#">Next</a></li>-->
                 </ul>
 
          </div>
