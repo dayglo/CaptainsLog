@@ -334,6 +334,7 @@ function RunPage() {
             {
                 "Name": "Distributed Platform Readiness (DPR)",
                 "Environments": [
+                    { "name": "Dev", "VCServer": "devdpr" },
                     { "name": "Preprod - PB2", "VCServer": "preprodpb2" },
                     { "name": "Preprod - PB3", "VCServer": "preprodpb3" },
                     { "name": "Live - PB2", "VCServer": "prodpb2" },
